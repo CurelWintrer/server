@@ -18,7 +18,7 @@
 
 **curl示例：**
 ```bash
-curl -X POST http://localhost:3000/api/register \
+curl -X POST http://localhost:3000/api/user/register \
   -H "Content-Type: application/json" \
   -d '{"name":"test","email":"test@example.com","password":"123456","role":0}'
 ```
@@ -56,7 +56,7 @@ curl -X POST http://localhost:3000/api/register \
 
 **curl示例（带JWT返回）：**
 ```bash
-curl -X POST http://localhost:3000/api/login \
+curl -X POST http://localhost:3000/api/user/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"123456"}'
 ```
@@ -99,7 +99,7 @@ Authorization: Bearer <jwt_token>
 
 **curl示例：**
 ```bash
-curl -X GET http://localhost:3000/api/users \
+curl -X GET http://localhost:3000/api/user/users \
   -H "Authorization: Bearer your_jwt_token" \
   -H "Content-Type: application/json"
 ```
@@ -144,7 +144,7 @@ Authorization: Bearer <jwt_token>
 
 **curl示例：**
 ```bash
-curl -X PUT http://localhost:3000/api/users/2/role \
+curl -X PUT http://localhost:3000/api/user/users/2/role \
   -H "Authorization: Bearer your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{"role":1}'
