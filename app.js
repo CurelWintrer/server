@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const pool = require('./db');
 const userRoutes = require('./routes/user');
+const imageRoutes = require('./routes/image');
 
 const app = express();
 
@@ -20,6 +21,7 @@ pool.getConnection()
 
 // 路由配置
 app.use('/api/user', userRoutes);
+app.use('/api/images', imageRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

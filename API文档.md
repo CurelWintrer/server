@@ -210,6 +210,79 @@ curl -X PUT http://localhost:3000/api/user/3/state \
 - 422：参数验证失败
 - 500：服务器内部错误
 
+## 6、图片查询
+
+### 6.1 分页查询图片
+
+**请求方法：**GET /api/images
+
+**请求参数：**
+- page: 页码（默认1）
+- limit: 每页数量（默认10）
+
+**curl示例：**
+```bash
+curl -X GET "http://localhost:3000/api/images?page=1&limit=10"
+```
+
+**响应示例（200）：**
+```json
+{
+  "total": 100,
+  "page": 1,
+  "limit": 10,
+  "images": [
+    {
+      "imageID": 1,
+      "md5": "abc123def456",
+      "imgName": "example.jpg",
+      "imgPath": "/uploads/example.jpg",
+      "chinaElementName": "青花瓷",
+      "caption": "这是一个青花瓷图片"
+    },
+    ...
+  ]
+}
+```
+
+**错误代码：**
+- 500：服务器内部错误
+
+### 6.2 查询单张图片
+
+**请求方法：**GET /api/images/{id}
+
+**路径参数：**
+- id: 图片ID
+
+**curl示例：**
+```bash
+curl -X GET http://localhost:3000/api/images/1
+```
+
+**响应示例（200）：**
+```json
+{
+  "imageID": 1,
+  "md5": "abc123def456",
+  "First": "元素1",
+  "Second": "元素2",
+  "Third": "元素3",
+  "Forth": "元素4",
+  "Fifth": "元素5",
+  "imgName": "example.jpg",
+  "imgPath": "/uploads/example.jpg",
+  "chinaElementName": "青花瓷",
+  "caption": "这是一个青花瓷图片",
+  "state": 0,
+  "imageListID": 1
+}
+```
+
+**错误代码：**
+- 404：图片不存在
+- 500：服务器内部错误
+
 
 
 ## 6、批量修改用户状态
