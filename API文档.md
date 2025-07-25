@@ -210,188 +210,18 @@ curl -X PUT http://localhost:3000/api/user/3/state \
 - 422：参数验证失败
 - 500：服务器内部错误
 
-## 6、拉取检查任务
-
-**请求方法：**POST /api/check-tasks
-
-## 7、获取检查任务详情
-
-**请求方法：**GET /api/check-tasks/:taskId
-
-**请求头：**
-```
-Authorization: Bearer <jwt_token>
-```
-
-**路径参数：**
-- taskId: 检查任务ID
-
-**curl示例：**
-```bash
-curl -X GET http://localhost:3000/api/check-tasks/1 \
-  -H "Authorization: Bearer your_jwt_token"
-```
-
-**响应示例（200）：**
-```json
-{
-  "task": {
-    "checkImageListID": 1,
-    "userID": 2,
-    "state": 0,
-    "imageCount": 10,
-    "checked_count": 0
-  },
-  "images": [
-    {
-      "imageID": 1,
-      "imgName": "example.jpg",
-      "imgPath": "/img/history/politics/1.jpg",
-      "First": "历史故事",
-      "Second": "政治与军事故事",
-      "Third": "政治谋略",
-      "imageListID": 1
-    },
-    ...
-  ]
-}
-```
-
-**错误代码：**
-- 401：未授权或token无效
-- 404：检查任务不存在
-- 500：服务器内部错误
-
-## 8、图片查询
-
-**请求头：**
-```
-Authorization: Bearer <jwt_token>
-```
-
-**请求参数：**
-```json
-{
-  "First": "一级标题（可选）",
-  "Second": "二级标题（可选）",
-  "Third": "三级标题（可选）",
-  "Fourth": "四级标题（可选）",
-  "Fifth": "五级标题（可选）",
-  "count": 10
-}
-```
-
-**curl示例：**
-```bash
-curl -X POST http://localhost:3000/api/check-tasks \
-  -H "Authorization: Bearer your_jwt_token" \
-  -H "Content-Type: application/json" \
-  -d '{"First":"历史故事","Second":"政治与军事故事","Third":"政治谋略","count":10}'
-```
-
-**响应示例（201）：**
-```json
-{
-  "checkImageListID": 1,
-  "userID": 2,
-  "imageCount": 10,
-  "assignedImages": 10
-}
-```
-
-**注意：**至少需要提供一个标题参数（First/Second/Third/Fourth/Fifth）
-
-**错误代码：**
-- 400：至少提供一个标题参数且count必须为正数
-- 401：未授权或token无效
-- 404：没有找到符合条件的图片
-- 500：服务器内部错误
-
-## 7、图片查询
-
-### 7.1 分页查询图片
-
-**请求方法：**GET /api/images
-
-**请求参数：**
-- page: 页码（默认1）
-- limit: 每页数量（默认10）
-
-**curl示例：**
-```bash
-curl -X GET "http://localhost:3000/api/images?page=1&limit=10"
-```
-
-**响应示例（200）：**
-```json
-{
-  "total": 100,
-  "page": 1,
-  "limit": 10,
-  "images": [
-    {
-      "imageID": 1,
-      "md5": "abc123def456",
-      "imgName": "example.jpg",
-      "imgPath": "/uploads/example.jpg",
-      "chinaElementName": "青花瓷",
-      "caption": "这是一个青花瓷图片"
-    },
-    ...
-  ]
-}
-```
-
-**错误代码：**
-- 500：服务器内部错误
-
-### 7.2 查询单张图片
-
-**请求方法：**GET /api/images/{id}
-
-**路径参数：**
-- id: 图片ID
-
-**curl示例：**
-```bash
-curl -X GET http://localhost:3000/api/images/1
-```
-
-**响应示例（200）：**
-```json
-{
-  "imageID": 1,
-  "md5": "abc123def456",
-  "First": "元素1",
-  "Second": "元素2",
-  "Third": "元素3",
-  "Forth": "元素4",
-  "Fifth": "元素5",
-  "imgName": "example.jpg",
-  "imgPath": "/uploads/example.jpg",
-  "chinaElementName": "青花瓷",
-  "caption": "这是一个青花瓷图片",
-  "state": 0,
-  "imageListID": 1
-}
-```
-
-**错误代码：**
-- 404：图片不存在
-- 500：服务器内部错误
-
-
-
 ## 6、批量修改用户状态
 
 **请求方法：**PUT /api/user/batch-state
 
 **请求头：**
+
 ```
 Authorization: Bearer <jwt_token>
 ```
 
 **请求参数：**
+
 ```json
 {
   "userIDs": [1, 2, 3],
@@ -400,6 +230,7 @@ Authorization: Bearer <jwt_token>
 ```
 
 **curl示例：**
+
 ```bash
 curl -X PUT http://localhost:3000/api/user/batch-state \
   -H "Authorization: Bearer your_jwt_token" \
@@ -408,6 +239,7 @@ curl -X PUT http://localhost:3000/api/user/batch-state \
 ```
 
 **响应示例（200）：**
+
 ```json
 {
   "updatedCount": 3,
@@ -438,6 +270,7 @@ curl -X PUT http://localhost:3000/api/user/batch-state \
 ```
 
 **错误代码：**
+
 - 400：用户ID列表不能为空
 - 403：权限不足
 - 422：参数验证失败
@@ -445,134 +278,198 @@ curl -X PUT http://localhost:3000/api/user/batch-state \
 
 
 
-## 7、获取单个图片信息
+## 7、拉取检查任务
 
-**请求方法：**GET /api/images/{imageID}
+**请求方法：**POST /api/check-tasks
 
 **请求头：**
+
 ```
 Authorization: Bearer <jwt_token>
 ```
 
+**请求参数：**
+
+```json
+{
+  "First": "一级标题（可选）",
+  "Second": "二级标题（可选）",
+  "Third": "三级标题（可选）",
+  "Fourth": "四级标题（可选）",
+  "Fifth": "五级标题（可选）",
+  "count": 10
+}
+```
+
 **curl示例：**
+
 ```bash
-curl -X GET http://localhost:3000/api/images/123 \
+curl -X POST http://localhost:3000/api/check-tasks \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"First":"历史故事","Second":"政治与军事故事","Third":"政治谋略","count":10}'
+```
+
+**响应示例（201）：**
+
+```json
+{
+  "checkImageListID": 1,
+  "userID": 2,
+  "imageCount": 10,
+  "assignedImages": 10
+}
+```
+
+**注意：**至少需要提供一个标题参数（First/Second/Third/Fourth/Fifth）
+
+**错误代码：**
+
+- 400：至少提供一个标题参数且count必须为正数
+- 401：未授权或token无效
+- 404：没有找到符合条件的图片
+- 500：服务器内部错误
+
+## 8、获取检查任务详情
+
+**请求方法：**GET /api/check-tasks/:taskId
+
+**请求头：**
+
+```
+Authorization: Bearer <jwt_token>
+```
+
+**路径参数：**
+
+- taskId: 检查任务ID
+
+**curl示例：**
+
+```bash
+curl -X GET http://localhost:3000/api/check-tasks/1 \
   -H "Authorization: Bearer your_jwt_token"
 ```
 
 **响应示例（200）：**
+
 ```json
 {
-  "id": 123,
-  "name": "example.jpg",
-  "size": 204800,
-  "state": 1,
-  "imageListID": 5,
-  "createdAt": "2024-05-20T10:00:00Z"
+  "task": {
+    "checkImageListID": 1,
+    "userID": 2,
+    "state": 0,
+    "imageCount": 10,
+    "checked_count": 0
+  },
+  "images": [
+    {
+      "imageID": 1,
+      "imgName": "example.jpg",
+      "imgPath": "/img/history/politics/1.jpg",
+      "First": "历史故事",
+      "Second": "政治与军事故事",
+      "Third": "政治谋略",
+      "imageListID": 1
+    },
+    ...
+  ]
 }
 ```
 
 **错误代码：**
-- 403：权限不足
+
+- 401：未授权或token无效
+- 404：检查任务不存在
+- 500：服务器内部错误
+
+## 
+
+## 9、图片查询
+
+### 9.1 分页查询图片
+
+**请求方法：**GET /api/images
+
+**请求参数：**
+
+- page: 页码（默认1）
+- limit: 每页数量（默认10）
+
+**curl示例：**
+
+```bash
+curl -X GET "http://localhost:3000/api/images?page=1&limit=10"
+```
+
+**响应示例（200）：**
+
+```json
+{
+  "total": 100,
+  "page": 1,
+  "limit": 10,
+  "images": [
+    {
+      "imageID": 1,
+      "md5": "abc123def456",
+      "imgName": "example.jpg",
+      "imgPath": "/uploads/example.jpg",
+      "chinaElementName": "青花瓷",
+      "caption": "这是一个青花瓷图片"
+    },
+    ...
+  ]
+}
+```
+
+**错误代码：**
+
+- 500：服务器内部错误
+
+- 
+
+### 9.2 查询单张图片
+
+**请求方法：**GET /api/images/{id}
+
+**路径参数：**
+
+- id: 图片ID
+
+**curl示例：**
+
+```bash
+curl -X GET http://localhost:3000/api/images/1
+```
+
+**响应示例（200）：**
+
+```json
+{
+  "imageID": 1,
+  "md5": "abc123def456",
+  "First": "元素1",
+  "Second": "元素2",
+  "Third": "元素3",
+  "Forth": "元素4",
+  "Fifth": "元素5",
+  "imgName": "example.jpg",
+  "imgPath": "/uploads/example.jpg",
+  "chinaElementName": "青花瓷",
+  "caption": "这是一个青花瓷图片",
+  "state": 0,
+  "imageListID": 1
+}
+```
+
+**错误代码：**
+
 - 404：图片不存在
 - 500：服务器内部错误
 
 
 
-
-
-## 8、拉取检查任务
-
-**请求方法：**POST /api/image-lists
-
-**请求头：**
-```
-Authorization: Bearer <jwt_token>
-```
-
-**请求参数：**
-```json
-{
-  "image_count": 10
-}
-```
-
-**curl示例：**
-```bash
-curl -X POST http://localhost:3000/api/image-lists \
-  -H "Authorization: Bearer your_jwt_token" \
-  -H "Content-Type: application/json" \
-  -d '{"image_count":10}'
-```
-
-**响应示例（200）：**
-```json
-{
-  "id": 5,
-  "assignedTo": 1,
-  "totalImages": 10,
-  "createdAt": "2024-05-20T10:00:00Z",
-  "images": [
-    {
-      "id": 123,
-      "name": "example1.jpg",
-      "size": 204800
-    }
-  ]
-}
-```
-
-**错误代码：**
-- 400：可用图片不足
-- 403：权限不足
-- 500：服务器内部错误
-
-
-
-## 9、更新检查任务状态
-
-**请求方法：**PUT /api/image-lists/{imageListID}
-
-**请求头：**
-```
-Authorization: Bearer <jwt_token>
-```
-
-**请求参数：**
-```json
-{
-  "images": [
-    {
-      "id": 123,
-      "state": 2
-    }
-  ]
-}
-```
-
-**curl示例：**
-```bash
-curl -X PUT http://localhost:3000/api/image-lists/5 \
-  -H "Authorization: Bearer your_jwt_token" \
-  -H "Content-Type: application/json" \
-  -d '{"images":[{"id":123,"state":2}]}'
-```
-
-**响应示例（200）：**
-```json
-{
-  "updatedCount": 1,
-  "success": true
-}
-```
-
-**错误代码：**
-- 400：任务状态不匹配
-- 403：权限不足
-- 404：任务不存在
-- 500：服务器内部错误
-
-
-
+## 
 
 
