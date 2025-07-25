@@ -330,7 +330,49 @@ curl -X POST http://localhost:3000/api/check-tasks \
 - 404：没有找到符合条件的图片
 - 500：服务器内部错误
 
-## 8、获取检查任务详情
+## 8、查询用户的检查任务
+
+**请求方法：**GET /api/check-tasks/user
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**请求参数：**
+- page: 页码（默认1）
+- limit: 每页数量（默认10）
+
+**curl示例：**
+```bash
+curl -X GET "http://localhost:3000/api/check-tasks/user?page=1&limit=10" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+**响应示例（200）：**
+```json
+{
+  "total": 5,
+  "page": 1,
+  "limit": 10,
+  "tasks": [
+    {
+      "checkImageListID": 1,
+      "userID": 2,
+      "state": 0,
+      "imageCount": 10,
+      "checked_count": 3
+    },
+    ...
+  ]
+}
+```
+
+**错误代码：**
+- 401：未授权或token无效
+- 500：服务器内部错误
+
+## 9、获取检查任务详情
 
 **请求方法：**GET /api/check-tasks/:taskId
 
@@ -470,6 +512,6 @@ curl -X GET http://localhost:3000/api/images/1
 
 
 
-## 
+##
 
 

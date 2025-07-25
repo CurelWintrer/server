@@ -25,7 +25,7 @@ CREATE TABLE image (
     First VARCHAR(100),
     Second VARCHAR(100),
     Third VARCHAR(100),
-    Forth VARCHAR(100),
+    Fourth VARCHAR(100),
     Fifth VARCHAR(100),
     imgName VARCHAR(255),
     imgPath TEXT,
