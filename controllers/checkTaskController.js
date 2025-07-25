@@ -7,7 +7,7 @@ class CheckTaskController {
         try {
             const userID = req.user.userID;
             const page = parseInt(req.query.page) || 1;
-const limit = parseInt(req.query.limit) || 10;
+            const limit = parseInt(req.query.limit) || 10;
             const offset = (page - 1) * limit;
 
             // 查询任务总数
