@@ -4,7 +4,7 @@
 
 ## 1、用户注册
 
-**请求方法：**POST /api/register
+**请求方法：**POST /api/user/register
 
 **请求参数：**
 ```json
@@ -44,9 +44,10 @@ curl -X POST http://localhost:3000/api/user/register \
 
 ## 2、用户登录
 
-**请求方法：**POST /api/login
+**请求方法：**POST /api/user/login
 
 **请求参数：**
+
 ```json
 {
   "email": "user@example.com",
@@ -55,6 +56,7 @@ curl -X POST http://localhost:3000/api/user/register \
 ```
 
 **curl示例（带JWT返回）：**
+
 ```bash
 curl -X POST http://localhost:3000/api/user/login \
   -H "Content-Type: application/json" \
