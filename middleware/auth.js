@@ -21,7 +21,13 @@ const auth = {
 
   // 管理员权限校验
   adminRequired: (req, res, next) => {
-    if (req.user.role !== '1') {
+    if (!req.user) {
+      return res.status(401).json({ message: '未授权访问' });
+    }
+    
+    // 确保role是数字类型进行比较
+    const role = parseInt(req.user.role);
+    if (role !== 1) {
       return res.status(403).json({ message: '需要管理员权限' });
     }
     next();

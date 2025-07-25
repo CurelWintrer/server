@@ -10,12 +10,15 @@ router.post('/register', userController.register);
 router.post('/login', userController.login);
 
 // 获取用户列表（管理员权限）
-router.get('/list', auth.adminRequired, userController.getUsers);
+router.get('/list', auth.verifyToken, auth.adminRequired, userController.getUsers);
 
 // 修改用户角色（管理员权限）
-router.put('/:id/role', auth.adminRequired, userController.updateRole);
+router.put('/:id/role', auth.verifyToken, auth.adminRequired, userController.updateRole);
 
 // 修改用户状态（管理员权限）
-router.put('/:id/state', auth.adminRequired, userController.updateState);
+router.put('/:id/state', auth.verifyToken, auth.adminRequired, userController.updateState);
+
+// 批量修改用户状态（管理员权限）
+router.put('/batch-state', auth.verifyToken, auth.adminRequired, userController.batchUpdateState);
 
 module.exports = router;

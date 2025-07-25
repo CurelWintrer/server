@@ -11,8 +11,8 @@ class UserController {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const [result] = await pool.query(
-        'INSERT INTO user (name, email, password, role) VALUES (?, ?, ?, ?)',
-        [name, email, hashedPassword, role]
+        'INSERT INTO user (name, email, password, role, state) VALUES (?, ?, ?, ?, ?)',
+        [name, email, hashedPassword, role, 0]
       );
 
       const [user] = await pool.query('SELECT * FROM user WHERE userID = ?', [result.insertId]);
@@ -95,6 +95,31 @@ class UserController {
       res.json(user[0]);
     } catch (error) {
       res.status(400).json({ message: '更新状态失败', error: error.message });
+    }
+  }
+
+  // 批量更新用户状态
+  static async batchUpdateState(req, res) {
+    try {
+      const { userIDs, state } = req.body;
+      
+      if (!Array.isArray(userIDs) || userIDs.length === 0) {
+        return res.status(400).json({ message: '用户ID列表不能为空' });
+      }
+
+      // 使用 IN 操作符批量更新用户状态
+      const placeholders = userIDs.map(() => '?').join(',');
+      await pool.query(`UPDATE user SET state = ? WHERE userID IN (${placeholders})`, [state, ...userIDs]);
+      
+      // 获取更新后的用户列表
+      const [users] = await pool.query(`SELECT * FROM user WHERE userID IN (${placeholders})`, [...userIDs]);
+      
+      res.json({
+        updatedCount: users.length,
+        users: users
+      });
+    } catch (error) {
+      res.status(400).json({ message: '批量更新状态失败', error: error.message });
     }
   }
 }

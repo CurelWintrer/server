@@ -83,7 +83,7 @@ curl -X POST http://localhost:3000/api/user/login \
 
 ## 3、查看所有用户信息
 
-**请求方法：**GET /api/users
+**请求方法：**GET /api/user/list
 
 **请求头：**
 ```
@@ -99,7 +99,7 @@ Authorization: Bearer <jwt_token>
 
 **curl示例：**
 ```bash
-curl -X GET http://localhost:3000/api/user/users \
+curl -X GET http://localhost:3000/api/user/list \
   -H "Authorization: Bearer your_jwt_token" \
   -H "Content-Type: application/json"
 ```
@@ -128,7 +128,7 @@ curl -X GET http://localhost:3000/api/user/users \
 
 ## 4、修改用户角色
 
-**请求方法：**PUT /api/users/{userID}/role
+**请求方法：**PUT /api/user/{userID}/role
 
 **请求头：**
 ```
@@ -144,7 +144,7 @@ Authorization: Bearer <jwt_token>
 
 **curl示例：**
 ```bash
-curl -X PUT http://localhost:3000/api/user/users/2/role \
+curl -X PUT http://localhost:3000/api/user/2/role \
   -H "Authorization: Bearer your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{"role":1}'
@@ -169,7 +169,7 @@ curl -X PUT http://localhost:3000/api/user/users/2/role \
 
 ## 5、修改用户状态
 
-**请求方法：**PUT /api/users/{userID}/state
+**请求方法：**PUT /api/user/{userID}/state
 
 **请求头：**
 ```
@@ -185,7 +185,7 @@ Authorization: Bearer <jwt_token>
 
 **curl示例：**
 ```bash
-curl -X PUT http://localhost:3000/api/users/3/state \
+curl -X PUT http://localhost:3000/api/user/3/state \
   -H "Authorization: Bearer your_jwt_token" \
   -H "Content-Type: application/json" \
   -d '{"state":0}'
@@ -210,7 +210,70 @@ curl -X PUT http://localhost:3000/api/users/3/state \
 
 
 
-## 6、获取单个图片信息
+## 6、批量修改用户状态
+
+**请求方法：**PUT /api/user/batch-state
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**请求参数：**
+```json
+{
+  "userIDs": [1, 2, 3],
+  "state": 1
+}
+```
+
+**curl示例：**
+```bash
+curl -X PUT http://localhost:3000/api/user/batch-state \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"userIDs":[1,2,3],"state":1}'
+```
+
+**响应示例（200）：**
+```json
+{
+  "updatedCount": 3,
+  "users": [
+    {
+      "id": 1,
+      "name": "user01",
+      "email": "user01@example.com",
+      "role": 0,
+      "state": 1
+    },
+    {
+      "id": 2,
+      "name": "user02",
+      "email": "user02@example.com",
+      "role": 0,
+      "state": 1
+    },
+    {
+      "id": 3,
+      "name": "user03",
+      "email": "user03@example.com",
+      "role": 0,
+      "state": 1
+    }
+  ]
+}
+```
+
+**错误代码：**
+- 400：用户ID列表不能为空
+- 403：权限不足
+- 422：参数验证失败
+- 500：服务器内部错误
+
+
+
+## 7、获取单个图片信息
 
 **请求方法：**GET /api/images/{imageID}
 
@@ -246,7 +309,7 @@ curl -X GET http://localhost:3000/api/images/123 \
 
 
 
-## 7、拉取检查任务
+## 8、拉取检查任务
 
 **请求方法：**POST /api/image-lists
 
@@ -294,7 +357,7 @@ curl -X POST http://localhost:3000/api/image-lists \
 
 
 
-## 8、更新检查任务状态
+## 9、更新检查任务状态
 
 **请求方法：**PUT /api/image-lists/{imageListID}
 
