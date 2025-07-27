@@ -456,9 +456,56 @@ curl -X GET http://localhost:3000/api/check-tasks/1 \
 - 404：检查任务不存在
 - 500：服务器内部错误
 
-## 
+## 10、更新质检任务状态
 
-## 9、图片查询
+**请求方法：**PUT /api/check-tasks/:taskId/state
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**路径参数：**
+- taskId: 检查任务ID
+
+**请求参数：**
+```json
+{
+  "state": 1
+}
+```
+
+**参数说明：**
+- state: 任务状态（0: 未开始, 1: 进行中, 2: 已完成）
+
+**curl示例：**
+```bash
+curl -X PUT http://localhost:3000/api/check-tasks/1/state \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"state": 1}'
+```
+
+**响应示例（200）：**
+```json
+{
+  "checkImageListID": 1,
+  "userID": 2,
+  "state": 1,
+  "imageCount": 10,
+  "checked_count": 0,
+  "path": "历史故事/政治与军事故事/政治谋略"
+}
+```
+
+**错误代码：**
+- 400：无效的状态值
+- 401：未授权或token无效
+- 404：检查任务不存在或不属于当前用户
+- 500：服务器内部错误
+
+## 图片查询
 
 ### 9.1 分页查询图片
 
@@ -543,6 +590,101 @@ curl -X GET http://localhost:3000/api/images/1
 
 
 
-##
+### 11、获取图片统计数据
+- 请求方法：GET
+- 请求URL：/api/images/statistics
+- 请求头：
+  Authorization: Bearer {token}
+- 响应示例：
+```json
+{
+  "total": 120,
+  "stateCounts": {
+    "未检查": 30,
+    "正在检查": 25,
+    "正在审核": 20,
+    "审核通过": 40,
+    "废弃": 5
+  },
+  "titleStatistics": {
+    "First": {
+      "标题1": {
+        "total": 50,
+        "stateCounts": {
+          "未检查": 10,
+          "正在检查": 15,
+          "正在审核": 5,
+          "审核通过": 18,
+          "废弃": 2
+        }
+      },
+      // ... 其他一级标题统计
+    },
+    // ... 其他级别标题统计
+  }
+}
+```
+- 错误码：
+  401: 未授权或token无效
+  500: 服务器内部错误
+
+
+### 12、按多级标题查询图片
+- 请求方法：GET
+- 请求URL：/api/images/by-titles
+- 请求头：
+  Authorization: Bearer {token}
+- 请求参数：
+  page: 页码（默认1）
+  limit: 每页条数（默认10）
+  First: 一级标题（可选）
+  Second: 二级标题（可选）
+  Third: 三级标题（可选）
+  Fourth: 四级标题（可选）
+  Fifth: 五级标题（可选）
+- 响应示例：
+```json
+{
+  "total": 50,
+  "page": 1,
+  "limit": 10,
+  "images": [
+    {
+      "imageID": 1,
+      "First": "标题1",
+      "Second": "子标题1",
+      "Third": null,
+      "Fourth": null,
+      "Fifth": null,
+      "state": 0,
+      // ... 其他图片信息
+    },
+    // ... 更多图片
+  ]
+}
+```
+- 错误码：
+  401: 未授权或token无效
+  500: 服务器内部错误
+
+
+### 13、获取各级标题类型
+- 请求方法：GET
+- 请求URL：/api/images/title-types
+- 请求头：
+  Authorization: Bearer {token}
+- 响应示例：
+```json
+{
+  "First": ["标题1", "标题2", "标题3"],
+  "Second": ["子标题1", "子标题2", "子标题3"],
+  "Third": ["三级标题A", "三级标题B"],
+  "Fourth": [],
+  "Fifth": []
+}
+```
+- 错误码：
+  401: 未授权或token无效
+  500: 服务器内部错误
 
 

@@ -74,6 +74,9 @@ class CheckTaskController {
             // 收集提供的标题参数
             const titles = [First, Second, Third, Fourth, Fifth].filter(Boolean);
 
+            // 拼接标题为path
+            const path = titles.join('/');
+
             // 参数验证：至少提供一个标题且count有效
             if (titles.length === 0 || !count || count <= 0) {
                 return res.status(400).json({ message: '至少提供一个标题参数且count必须为正数' });
@@ -85,8 +88,8 @@ class CheckTaskController {
 
                 // 1. 创建检查任务
                 const [taskResult] = await connection.query(
-                    'INSERT INTO checkImageList (userID, state, imageCount, checked_count) VALUES (?, 0, ?, 0)',
-                    [userID, count]
+                    'INSERT INTO checkImageList (userID, state, imageCount, checked_count, path) VALUES (?, 0, ?, 0, ?)',
+                    [userID, count, path]
                 );
                 const taskID = taskResult.insertId;
 
@@ -163,6 +166,46 @@ class CheckTaskController {
             }
         } catch (error) {
             res.status(500).json({ message: '创建检查任务失败', error: error.message });
+        }
+    }
+
+    // 更新质检任务状态
+    static async updateTaskState(req, res) {
+        try {
+            const { taskId } = req.params;
+            const { state } = req.body;
+            const userID = req.user.userID;
+
+            // 验证状态值是否有效
+            if (![0, 1, 2].includes(state)) {
+                return res.status(400).json({ message: '无效的状态值，必须是0、1或2' });
+            }
+
+            // 检查任务是否存在且属于当前用户
+            const [task] = await pool.query(
+                'SELECT * FROM checkImageList WHERE checkImageListID = ? AND userID = ?',
+                [taskId, userID]
+            );
+
+            if (task.length === 0) {
+                return res.status(404).json({ message: '检查任务不存在或不属于当前用户' });
+            }
+
+            // 更新任务状态
+            await pool.query(
+                'UPDATE checkImageList SET state = ? WHERE checkImageListID = ?',
+                [state, taskId]
+            );
+
+            // 返回更新后的任务信息
+            const [updatedTask] = await pool.query(
+                'SELECT * FROM checkImageList WHERE checkImageListID = ?',
+                [taskId]
+            );
+
+            res.status(200).json(updatedTask[0]);
+        } catch (error) {
+            res.status(500).json({ message: '更新任务状态失败', error: error.message });
         }
     }
 }

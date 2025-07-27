@@ -1,60 +1,75 @@
--- 用户表
-CREATE TABLE user (
-    userID INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL,
-    state INT DEFAULT 1 NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 注册时间
-    CONSTRAINT email UNIQUE (email)
+create table user
+(
+    userID     int auto_increment
+        primary key,
+    name       varchar(100)                       not null,
+    email      varchar(255)                       not null,
+    password   varchar(255)                       not null,
+    role       varchar(50)                        not null,
+    state      int      default 1                 null,
+    created_at datetime default CURRENT_TIMESTAMP not null,
+    constraint email
+        unique (email)
 );
 
--- 质检图片列表表
-CREATE TABLE checkimagelist (
-    checkImageListID INT AUTO_INCREMENT PRIMARY KEY,
-    userID INT NOT NULL,
-    state INT DEFAULT 0 NULL,
-    imageCount INT DEFAULT 0 NULL,
-    checked_count INT DEFAULT 0 NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 创建时间
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间
-    CONSTRAINT checkimagelist_ibfk_1 FOREIGN KEY (userID) REFERENCES user (userID) ON DELETE CASCADE
+create table checkimagelist
+(
+    checkImageListID int auto_increment
+        primary key,
+    userID           int                                not null,
+    state            int      default 0                 null,
+    path             varchar(255)                       null,
+    imageCount       int      default 0                 null,
+    checked_count    int      default 0                 null,
+    created_at       datetime default CURRENT_TIMESTAMP not null,
+    updated_at       datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    constraint checkimagelist_ibfk_1
+        foreign key (userID) references user (userID)
+            on delete cascade
 );
 
-CREATE INDEX userID ON checkimagelist (userID);
+create index userID
+    on checkimagelist (userID);
 
--- 图片表
-CREATE TABLE image (
-    imageID INT AUTO_INCREMENT PRIMARY KEY,
-    md5 CHAR(32) NOT NULL,
-    First VARCHAR(100) NULL,
-    Second VARCHAR(100) NULL,
-    Third VARCHAR(100) NULL,
-    Fourth VARCHAR(100) NULL,
-    Fifth VARCHAR(100) NULL,
-    imgName VARCHAR(255) NULL,
-    imgPath TEXT NULL,
-    chinaElementName VARCHAR(255) NULL,
-    caption TEXT NULL,
-    state INT DEFAULT 0 NULL,
-    imageListID INT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT image_ibfk_1 FOREIGN KEY (imageListID) REFERENCES checkimagelist (checkImageListID) ON DELETE SET NULL
+create table image
+(
+    imageID          int auto_increment
+        primary key,
+    md5              char(32)                           not null,
+    First            varchar(100)                       null,
+    Second           varchar(100)                       null,
+    Third            varchar(100)                       null,
+    Fourth           varchar(100)                       null,
+    Fifth            varchar(100)                       null,
+    imgName          varchar(255)                       null,
+    imgPath          text                               null,
+    chinaElementName varchar(255)                       null,
+    caption          text                               null,
+    state            int                                null,
+    imageListID      int                                null,
+    created_at       datetime default CURRENT_TIMESTAMP not null,
+    updated_at       datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
+    constraint image_ibfk_1
+        foreign key (imageListID) references checkimagelist (checkImageListID)
+            on delete set null
 );
 
-CREATE INDEX imageListID ON image (imageListID);
+create index imageListID
+    on image (imageListID);
 
--- 图片日志表
-CREATE TABLE image_log (
-    imageLogID INT AUTO_INCREMENT PRIMARY KEY,
-    imageID INT NOT NULL,
-    userID INT NOT NULL,
-    operation VARCHAR(255) NOT NULL,
-    last VARCHAR(255) NULL,
-    next VARCHAR(255) NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 日志创建时间
-    CONSTRAINT image_log__image_fk FOREIGN KEY (imageID) REFERENCES image (imageID),
-    CONSTRAINT image_log_user_userID_fk FOREIGN KEY (userID) REFERENCES user (userID)
+create table image_log
+(
+    imageLogID int auto_increment
+        primary key,
+    imageID    int                                not null,
+    userID     int                                not null,
+    operation  varchar(255)                       not null,
+    last       varchar(255)                       null,
+    next       varchar(255)                       null,
+    created_at datetime default CURRENT_TIMESTAMP not null,
+    constraint image_log__image_fk
+        foreign key (imageID) references image (imageID),
+    constraint image_log_user_userID_fk
+        foreign key (userID) references user (userID)
 );
+
