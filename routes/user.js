@@ -8,6 +8,7 @@ router.post('/register', userController.register);
 
 // 用户登录
 router.post('/login', userController.login);
+router.post('/refresh-token', auth.verifyToken, userController.refreshToken);
 
 // 获取用户列表（管理员权限）
 router.get('/list', auth.verifyToken, auth.adminRequired, userController.getUsers);

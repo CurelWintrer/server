@@ -122,6 +122,24 @@ class UserController {
       res.status(400).json({ message: '批量更新状态失败', error: error.message });
     }
   }
+  // 刷新令牌
+  static async refreshToken(req, res) {
+    try {
+      // 使用当前用户信息生成新令牌
+      const newToken = generateToken(req.user);
+      res.json({
+        token: newToken,
+        user: {
+          id: req.user.userID,
+          name: req.user.name,
+          email: req.user.email,
+          role: req.user.role
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message: '刷新令牌失败', error: error.message });
+    }
+  }
 }
 
 module.exports = UserController;

@@ -44,29 +44,33 @@ curl -X POST http://localhost:3000/api/user/register \
 
 ## 2、用户登录
 
-**请求方法：**POST /api/user/login
+**错误代码：**
+- 401：邮箱或密码错误
+- 422：参数验证失败
+- 500：服务器内部错误
 
-**请求参数：**
+## 3、刷新登录信息
 
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
+**请求方法：**POST /api/user/refresh-token
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
 ```
 
-**curl示例（带JWT返回）：**
+**请求参数：** 无
 
+**curl示例：**
 ```bash
-curl -X POST http://localhost:3000/api/user/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"123456"}'
+curl -X POST http://localhost:3000/api/user/refresh-token \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json"
 ```
 
 **响应示例（200）：**
 ```json
 {
-  "token": "jwt_token_string",
+  "token": "new_jwt_token_string",
   "user": {
     "id": 1,
     "name": "test",
@@ -77,8 +81,7 @@ curl -X POST http://localhost:3000/api/user/login \
 ```
 
 **错误代码：**
-- 401：邮箱或密码错误
-- 422：参数验证失败
+- 401：无效的访问令牌或token已过期
 - 500：服务器内部错误
 
 
@@ -230,7 +233,6 @@ Authorization: Bearer <jwt_token>
 ```
 
 **curl示例：**
-
 ```bash
 curl -X PUT http://localhost:3000/api/user/batch-state \
   -H "Authorization: Bearer your_jwt_token" \
@@ -239,7 +241,36 @@ curl -X PUT http://localhost:3000/api/user/batch-state \
 ```
 
 **响应示例（200）：**
+```json
+{
+  "updatedCount": 3,
+  "users": [
+    {
+      "id": 1,
+      "name": "user01",
+      "email": "user01@example.com",
+      "role": 0,
+      "state": 1
+    },
+    {
+      "id": 2,
+      "name": "user02",
+      "email": "user02@example.com",
+      "role": 0,
+      "state": 1
+    },
+    {
+      "id": 3,
+      "name": "user03",
+      "email": "user03@example.com",
+      "role": 0,
+      "state": 1
+    }
+  ]
+}
+```
 
+**错误代码：**
 ```json
 {
   "updatedCount": 3,
