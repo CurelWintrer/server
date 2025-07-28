@@ -4,7 +4,8 @@ const imageController = require('../controllers/imageController');
 const auth = require('../middleware/auth');
 const multer = require('multer');
 // 配置临时存储目录
-const upload = multer({ dest: 'uploads/' });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // 分页查询图片
 router.get('/', auth.verifyToken, imageController.getImages);

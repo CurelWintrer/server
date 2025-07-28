@@ -44,44 +44,78 @@ class ImageController {
     }
   }
 
-  // 图片上传
+  // 图片上传接口
   static async uploadImage(req, res) {
     try {
+      // 检查是否有文件上传
       if (!req.file) {
-        return res.status(400).json({ message: '未上传图片文件' });
+        return res.status(400).json({ code: 400, message: '请上传图片文件' });
       }
 
-      const file = req.file;
-      const fileBuffer = await fs.readFile(file.path);
-      const md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
-      const ext = path.extname(file.originalname);
-      const newFileName = `${md5Hash}${ext}`;
-      const targetPath = path.join(path.dirname(file.path), newFileName);
-
-      // 重命名文件
-      await fs.rename(file.path, targetPath);
-
-      // 更新数据库信息
-      const [result] = await pool.query(
-        'UPDATE image SET imageName = ?, imagePath = ? WHERE imageID = ?',
-        [newFileName, targetPath, req.body.imageID]
-      );
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: '未找到对应的图片记录' });
+      const { imageID } = req.body;
+      if (!imageID) {
+        return res.status(400).json({ code: 400, message: '缺少imageID参数' });
       }
 
-      res.status(200).json({
-        message: '图片上传并更新成功',
-        imageID: req.body.imageID,
-        md5: md5Hash,
-        fileName: newFileName,
-        filePath: targetPath
-      });
+      try {
+        // 获取图片存储路径
+        // 查询图片的各级标题字段
+          const [imgResult] = await pool.query(
+            'SELECT First, Second, Third, Fourth, Fifth FROM image WHERE imageID = ?', 
+            [imageID]
+          );
+          if (!imgResult || imgResult.length === 0) {
+            return res.status(404).json({ code: 404, message: '未找到对应的图片记录' });
+          }
+          
+          // 提取并过滤路径部分
+          const { First, Second, Third, Fourth, Fifth } = imgResult[0];
+          const pathParts = [First, Second, Third, Fourth, Fifth]
+            .filter(part => part && part.trim() !== ''); // 过滤空值
+          
+          if (pathParts.length === 0) {
+            return res.status(400).json({ code: 400, message: '图片路径信息不完整' });
+          }
+        // 计算文件MD5
+        const md5 = crypto.createHash('md5').update(req.file.buffer).digest('hex');
+        // 获取文件扩展名
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        // 构建完整存储路径
+        // 使用resolve处理可能的绝对路径问题，确保正确拼接
+        const imgDir = pathParts.join(path.sep);
+          const fullDir = path.resolve(__dirname, '../img', imgDir);
+        const fileName = `${md5}${ext}`;
+        const filePath = path.join(fullDir, fileName);
+
+        // 确保目录存在
+        await fs.mkdir(fullDir, { recursive: true });
+
+        // 保存文件
+          await fs.writeFile(filePath, req.file.buffer);
+
+          // 更新数据库中的md5、imgName和imgPath
+          const fullImgPath = path.join(imgDir, fileName);
+          await pool.query(
+            'UPDATE image SET md5 = ?, imgName = ?, imgPath = ? WHERE imageID = ?',
+            [md5, fileName, fullImgPath, imageID]
+          );
+
+          // 返回成功响应
+        res.json({
+          message: '图片上传成功',
+          imageID: imageID,
+          md5: md5,
+          fileName: fileName,
+          filePath: path.join('img', imgDir, fileName)
+        });
+      } catch (dbError) {
+        res.status(500).json({ code: 500, message: '数据库操作失败', error: dbError.message });
+      }
     } catch (error) {
-      res.status(500).json({ message: '图片上传失败', error: error.message });
+      res.status(500).json({ code: 500, message: '服务器内部错误', error: error.message });
     }
   }
+
 
   static async getImageStatistics(req, res) {
     try {
@@ -216,7 +250,7 @@ class ImageController {
       const titleTypes = {};
 
       // 并行查询各级标题的不重复值
-      const queries = titleLevels.map(level => 
+      const queries = titleLevels.map(level =>
         pool.query(`SELECT DISTINCT ${level} FROM image WHERE ${level} IS NOT NULL`)
       );
       const results = await Promise.all(queries);
