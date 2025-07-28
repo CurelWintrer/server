@@ -399,6 +399,45 @@ curl -X GET "http://localhost:3000/api/check-tasks/user?page=1&limit=10" \
 }
 ```
 
+## 9、文件上传接口
+
+**请求方法：** POST /api/image/upload
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: multipart/form-data
+```
+
+**请求参数：**
+- image: 图片文件（form-data格式）
+- imageID: 图片ID（form-data的text字段）
+
+**curl示例：**
+```bash
+curl -X POST http://localhost:3000/api/image/upload \
+  -H "Authorization: Bearer your_jwt_token" \
+  -F "image=@/path/to/your/image.jpg" \
+  -F "imageID=123"
+```
+
+**响应示例（200）：**
+```json
+{
+  "message": "图片上传并更新成功",
+  "imageID": 123,
+  "md5": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
+  "fileName": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6.jpg",
+  "filePath": "uploads/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6.jpg"
+}
+```
+
+**错误代码：**
+- 400: 未上传图片文件
+- 401: 未授权或token无效
+- 404: 未找到对应的图片记录
+- 500: 服务器内部错误
+
 **错误代码：**
 - 401：未授权或token无效
 - 500：服务器内部错误

@@ -1,4 +1,7 @@
 const pool = require('../db');
+const fs = require('fs').promises;
+const path = require('path');
+const crypto = require('crypto');
 
 class ImageController {
   // 分页查询图片
@@ -41,7 +44,45 @@ class ImageController {
     }
   }
 
-  // 获取图片统计数据
+  // 图片上传
+  static async uploadImage(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: '未上传图片文件' });
+      }
+
+      const file = req.file;
+      const fileBuffer = await fs.readFile(file.path);
+      const md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+      const ext = path.extname(file.originalname);
+      const newFileName = `${md5Hash}${ext}`;
+      const targetPath = path.join(path.dirname(file.path), newFileName);
+
+      // 重命名文件
+      await fs.rename(file.path, targetPath);
+
+      // 更新数据库信息
+      const [result] = await pool.query(
+        'UPDATE image SET imageName = ?, imagePath = ? WHERE imageID = ?',
+        [newFileName, targetPath, req.body.imageID]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: '未找到对应的图片记录' });
+      }
+
+      res.status(200).json({
+        message: '图片上传并更新成功',
+        imageID: req.body.imageID,
+        md5: md5Hash,
+        fileName: newFileName,
+        filePath: targetPath
+      });
+    } catch (error) {
+      res.status(500).json({ message: '图片上传失败', error: error.message });
+    }
+  }
+
   static async getImageStatistics(req, res) {
     try {
       // 1. 获取总图片数
