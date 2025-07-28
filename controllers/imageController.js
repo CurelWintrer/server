@@ -27,96 +27,7 @@ class ImageController {
       res.status(500).json({ message: '获取图片失败', error: error.message });
     }
   }
-
-  // 查询单张图片
-  static async getImageById(req, res) {
-    try {
-      const { id } = req.params;
-      const [images] = await pool.query('SELECT * FROM image WHERE imageID = ?', [id]);
-
-      if (images.length === 0) {
-        return res.status(404).json({ message: '图片不存在' });
-      }
-
-      res.json(images[0]);
-    } catch (error) {
-      res.status(500).json({ message: '获取图片失败', error: error.message });
-    }
-  }
-
-  // 图片上传接口
-  static async uploadImage(req, res) {
-    try {
-      // 检查是否有文件上传
-      if (!req.file) {
-        return res.status(400).json({ code: 400, message: '请上传图片文件' });
-      }
-
-      const { imageID } = req.body;
-      if (!imageID) {
-        return res.status(400).json({ code: 400, message: '缺少imageID参数' });
-      }
-
-      try {
-        // 获取图片存储路径
-        // 查询图片的各级标题字段
-          const [imgResult] = await pool.query(
-            'SELECT First, Second, Third, Fourth, Fifth FROM image WHERE imageID = ?', 
-            [imageID]
-          );
-          if (!imgResult || imgResult.length === 0) {
-            return res.status(404).json({ code: 404, message: '未找到对应的图片记录' });
-          }
-          
-          // 提取并过滤路径部分
-          const { First, Second, Third, Fourth, Fifth } = imgResult[0];
-          const pathParts = [First, Second, Third, Fourth, Fifth]
-            .filter(part => part && part.trim() !== ''); // 过滤空值
-          
-          if (pathParts.length === 0) {
-            return res.status(400).json({ code: 400, message: '图片路径信息不完整' });
-          }
-        // 计算文件MD5
-        const md5 = crypto.createHash('md5').update(req.file.buffer).digest('hex');
-        // 获取文件扩展名
-        const ext = path.extname(req.file.originalname).toLowerCase();
-        // 构建完整存储路径
-        // 使用resolve处理可能的绝对路径问题，确保正确拼接
-        const imgDir = pathParts.join(path.sep);
-          const fullDir = path.resolve(__dirname, '../img', imgDir);
-        const fileName = `${md5}${ext}`;
-        const filePath = path.join(fullDir, fileName);
-
-        // 确保目录存在
-        await fs.mkdir(fullDir, { recursive: true });
-
-        // 保存文件
-          await fs.writeFile(filePath, req.file.buffer);
-
-          // 更新数据库中的md5、imgName和imgPath
-          const fullImgPath = path.join(imgDir, fileName);
-          await pool.query(
-            'UPDATE image SET md5 = ?, imgName = ?, imgPath = ? WHERE imageID = ?',
-            [md5, fileName, fullImgPath, imageID]
-          );
-
-          // 返回成功响应
-        res.json({
-          message: '图片上传成功',
-          imageID: imageID,
-          md5: md5,
-          fileName: fileName,
-          filePath: path.join('img', imgDir, fileName)
-        });
-      } catch (dbError) {
-        res.status(500).json({ code: 500, message: '数据库操作失败', error: dbError.message });
-      }
-    } catch (error) {
-      res.status(500).json({ code: 500, message: '服务器内部错误', error: error.message });
-    }
-  }
-
-
+  //图片状态统计
   static async getImageStatistics(req, res) {
     try {
       // 1. 获取总图片数
@@ -182,6 +93,96 @@ class ImageController {
       res.status(500).json({ message: '获取图片统计数据失败', error: error.message });
     }
   }
+
+  // 查询单张图片
+  static async getImageById(req, res) {
+    try {
+      const { id } = req.params;
+      const [images] = await pool.query('SELECT * FROM image WHERE imageID = ?', [id]);
+
+      if (images.length === 0) {
+        return res.status(404).json({ message: '图片不存在' });
+      }
+
+      res.json(images[0]);
+    } catch (error) {
+      res.status(500).json({ message: '获取图片失败', error: error.message });
+    }
+  }
+
+  // 图片上传接口
+  static async uploadImage(req, res) {
+    try {
+      // 检查是否有文件上传
+      if (!req.file) {
+        return res.status(400).json({ code: 400, message: '请上传图片文件' });
+      }
+
+      const { imageID } = req.body;
+      if (!imageID) {
+        return res.status(400).json({ code: 400, message: '缺少imageID参数' });
+      }
+
+      try {
+        // 获取图片存储路径
+        // 查询图片的各级标题字段
+        const [imgResult] = await pool.query(
+          'SELECT First, Second, Third, Fourth, Fifth FROM image WHERE imageID = ?',
+          [imageID]
+        );
+        if (!imgResult || imgResult.length === 0) {
+          return res.status(404).json({ code: 404, message: '未找到对应的图片记录' });
+        }
+
+        // 提取并过滤路径部分
+        const { First, Second, Third, Fourth, Fifth } = imgResult[0];
+        const pathParts = [First, Second, Third, Fourth, Fifth]
+          .filter(part => part && part.trim() !== ''); // 过滤空值
+
+        if (pathParts.length === 0) {
+          return res.status(400).json({ code: 400, message: '图片路径信息不完整' });
+        }
+        // 计算文件MD5
+        const md5 = crypto.createHash('md5').update(req.file.buffer).digest('hex');
+        // 获取文件扩展名
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        // 构建完整存储路径
+        // 使用resolve处理可能的绝对路径问题，确保正确拼接
+        const imgDir = pathParts.join(path.sep);
+        const fullDir = path.resolve(__dirname, '../img', imgDir);
+        const fileName = `${md5}${ext}`;
+        const filePath = path.join(fullDir, fileName);
+
+        // 确保目录存在
+        await fs.mkdir(fullDir, { recursive: true });
+
+        // 保存文件
+        await fs.writeFile(filePath, req.file.buffer);
+
+        // 更新数据库中的md5、imgName和imgPath
+        const fullImgPath = path.join(imgDir, fileName);
+        await pool.query(
+          'UPDATE image SET md5 = ?, imgName = ?, imgPath = ? WHERE imageID = ?',
+          [md5, fileName, fullImgPath, imageID]
+        );
+
+        // 返回成功响应
+        res.json({
+          message: '图片上传成功',
+          imageID: imageID,
+          md5: md5,
+          fileName: fileName,
+          filePath: path.join('img', imgDir, fileName)
+        });
+      } catch (dbError) {
+        res.status(500).json({ code: 500, message: '数据库操作失败', error: dbError.message });
+      }
+    } catch (error) {
+      res.status(500).json({ code: 500, message: '服务器内部错误', error: error.message });
+    }
+  }
+
+  
 
   // 按多级标题分页查询图片
   static async getImagesByTitles(req, res) {
@@ -263,6 +264,126 @@ class ImageController {
       res.json(titleTypes);
     } catch (error) {
       res.status(500).json({ message: '获取标题类型失败', error: error.message });
+    }
+  }
+
+
+  static async updateImageCaptions(req, res) {
+    try {
+      const { captions } = req.body;
+
+      if (!captions || !Array.isArray(captions) || captions.length === 0) {
+        return res.status(400).json({ message: '请提供有效的图片ID和caption数组' });
+      }
+
+      // 验证每个元素是否包含imageID和caption
+      for (const item of captions) {
+        if (!item.imageID || item.caption === undefined) {
+          return res.status(400).json({ message: '每个caption项必须包含imageID和caption字段' });
+        }
+      }
+
+      const connection = await pool.getConnection();
+      await connection.beginTransaction();
+
+      const results = [];
+      for (const item of captions) {
+        // 检查图片是否存在
+        const [image] = await connection.query('SELECT imageID FROM image WHERE imageID = ?', [item.imageID]);
+        if (image.length === 0) {
+          await connection.rollback();
+          connection.release();
+          return res.status(404).json({ message: `图片不存在，imageID: ${item.imageID}` });
+        }
+
+        const [result] = await connection.query(
+          'UPDATE image SET caption = ? WHERE imageID = ?',
+          [item.caption, item.imageID]
+        );
+
+        results.push({
+          imageID: item.imageID,
+          affectedRows: result.affectedRows
+        });
+      }
+
+      await connection.commit();
+      connection.release();
+
+      res.json({
+        message: 'caption更新成功',
+        results
+      });
+    } catch (error) {
+      res.status(500).json({ message: '更新caption失败', error: error.message });
+    }
+  }
+
+    // 查询重复或类似的chinaElementName
+  static async getDuplicateChinaElements(req, res) {
+    try {
+      // 查询所有非空的chinaElementName及完整图片信息
+      const [elements] = await pool.query(
+        'SELECT * FROM image WHERE chinaElementName IS NOT NULL AND chinaElementName != ""'
+      );
+
+      if (elements.length === 0) {
+        return res.json({ message: '没有找到相关元素名称记录', duplicates: [] });
+      }
+
+      // 存储重复或类似的元素组
+      const duplicateGroups = [];
+      const processed = new Set();
+
+      // 比较所有元素名称，查找相似或重复的
+      for (let i = 0; i < elements.length; i++) {
+        if (processed.has(elements[i].imageID)) continue;
+
+        const currentGroup = [elements[i]];
+        const currentName = elements[i].chinaElementName.trim().toLowerCase();
+
+        for (let j = i + 1; j < elements.length; j++) {
+          if (processed.has(elements[j].imageID)) continue;
+
+          const compareName = elements[j].chinaElementName.trim().toLowerCase();
+
+          // 完全匹配或包含关系视为相似
+          if (currentName === compareName || currentName.includes(compareName) || compareName.includes(currentName)) {
+            currentGroup.push(elements[j]);
+            processed.add(elements[j].imageID);
+          }
+        }
+
+        // 如果组内有多个元素，则认为是重复组
+        if (currentGroup.length > 1) {
+          duplicateGroups.push({
+            chinaElementName: elements[i].chinaElementName,
+            images: currentGroup.map(item => ({
+              imageID: item.imageID,
+              chinaElementName: item.chinaElementName,
+              imgPath: item.imgPath,
+              imgName: item.imgName,
+              First: item.First,
+              Second: item.Second,
+              Third: item.Third,
+              Fourth: item.Fourth,
+              Fifth: item.Fifth,
+              state: item.state,
+              md5: item.md5,
+              caption: item.caption
+            }))
+          });
+          processed.add(elements[i].imageID);
+        }
+      }
+
+      res.json({
+        message: '查询成功',
+        totalGroups: duplicateGroups.length,
+        duplicates: duplicateGroups
+      });
+    } catch (error) {
+      res.status(500).json({ message: '查询重复元素失败', error: error.message });
     }
   }
 }

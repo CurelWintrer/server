@@ -26,7 +26,7 @@ pool.getConnection()
 
 // 路由配置
 app.use('/api/user', userRoutes);
-app.use('/api/images', imageRoutes);
+app.use('/api/image', imageRoutes);
 app.use('/api/check-tasks', checkTaskRoutes);
 
 

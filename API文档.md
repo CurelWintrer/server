@@ -442,6 +442,63 @@ curl -X POST http://localhost:3000/api/image/upload \
 - 401：未授权或token无效
 - 500：服务器内部错误
 
+## 10、修改图片caption
+
+**请求方法：** POST /api/image/update-captions
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**请求参数：**
+```json
+{
+  "captions": [
+    {
+      "imageID": 1,
+      "caption": "更新的图片描述1"
+    },
+    {
+      "imageID": 2,
+      "caption": "更新的图片描述2"
+    }
+  ]
+}
+```
+
+**curl示例：**
+```bash
+curl -X POST http://localhost:3000/api/image/update-captions \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"captions":[{"imageID":1,"caption":"更新的图片描述1"},{"imageID":2,"caption":"更新的图片描述2"}]}'
+```
+
+**响应示例（200）：**
+```json
+{
+  "message": "caption更新成功",
+  "results": [
+    {
+      "imageID": 1,
+      "affectedRows": 1
+    },
+    {
+      "imageID": 2,
+      "affectedRows": 1
+    }
+  ]
+}
+```
+
+**错误代码：**
+- 400：参数格式错误或缺少必要字段
+- 401：未授权或token无效
+- 404：指定imageID的图片不存在
+- 500：服务器内部错误
+
 ## 9、获取检查任务详情
 
 **请求方法：**GET /api/check-tasks/:taskId
@@ -725,5 +782,53 @@ curl -X GET http://localhost:3000/api/images/1
 - 错误码：
   401: 未授权或token无效
   500: 服务器内部错误
+
+
+
+## 图片相关API
+
+### 查询重复或类似的chinaElementName
+**请求方法：**GET /api/image/duplicate-elements
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**功能描述：** 查询image表中chinaElementName字段的重复或类似值，返回互相重复的图片分组
+
+**curl示例：**
+```bash
+curl -X GET http://localhost:3000/api/image/duplicate-elements \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+**响应示例（200）：**
+```json
+{
+  "message": "查询成功",
+  "totalGroups": 2,
+  "duplicates": [
+    {
+      "chinaElementName": "故宫",
+      "images": [
+        {"imageID": 1, "chinaElementName": "故宫"},
+        {"imageID": 5, "chinaElementName": "故宫博物院"}
+      ]
+    },
+    {
+      "chinaElementName": "长城",
+      "images": [
+        {"imageID": 3, "chinaElementName": "长城"},
+        {"imageID": 7, "chinaElementName": "万里长城"}
+      ]
+    }
+  ]
+}
+```
+
+**错误代码：**
+- 401：无效的访问令牌或token已过期
+- 500：服务器内部错误
 
 

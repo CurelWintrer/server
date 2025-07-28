@@ -12,9 +12,9 @@ router.get('/', auth.verifyToken, imageController.getImages);
 router.get('/statistics', auth.verifyToken, imageController.getImageStatistics);
 router.get('/by-titles', auth.verifyToken, imageController.getImagesByTitles);
 router.get('/title-types', auth.verifyToken, imageController.getTitleTypes);
+router.get('/duplicate-elements', auth.verifyToken, imageController.getDuplicateChinaElements);
 router.get('/:id', auth.verifyToken, imageController.getImageById);
-
-// 文件上传接口
+router.post('/update-captions', auth.verifyToken, imageController.updateImageCaptions);
 router.post('/upload', auth.verifyToken, upload.single('image'), imageController.uploadImage);
 
 module.exports = router;
