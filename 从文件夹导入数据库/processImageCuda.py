@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 import torch.nn as nn
+from tqdm import tqdm  # ✅ 导入进度条库
 
 # 选择设备（GPU优先）
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -52,7 +53,7 @@ def find_similar_images(image_folder):
     resnet_features = []
 
     print("Extracting features...")
-    for path in image_paths:
+    for path in tqdm(image_paths, desc="Feature Extraction", unit="image"):
         clip_features.append(extract_clip_features(path))
         resnet_features.append(extract_resnet_features(path))
 
@@ -60,7 +61,7 @@ def find_similar_images(image_folder):
     visited = set()
 
     print("Calculating similarities...")
-    for i in range(len(image_paths)):
+    for i in tqdm(range(len(image_paths)), desc="Similarity Comparison", unit="image"):
         if i in visited:
             continue
         group = [image_paths[i]]
