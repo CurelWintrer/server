@@ -15,6 +15,7 @@ router.get('/title-types', auth.verifyToken, imageController.getTitleTypes);
 router.get('/duplicate-elements', auth.verifyToken, imageController.getDuplicateChinaElements);
 router.get('/:id', auth.verifyToken, imageController.getImageById);
 router.post('/update-captions', auth.verifyToken, imageController.updateImageCaptions);
+router.post('/update-states', auth.verifyToken, imageController.updateImageStates);
 router.post('/upload', auth.verifyToken, upload.single('image'), imageController.uploadImage);
 
 module.exports = router;

@@ -499,6 +499,129 @@ curl -X POST http://localhost:3000/api/image/update-captions \
 - 404：指定imageID的图片不存在
 - 500：服务器内部错误
 
+## 11、修改图片状态
+
+**请求方法：** POST /api/image/update-states
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**请求参数：**
+```json
+{
+  "states": [
+    {
+      "imageID": 1,
+      "state": 1
+    },
+    {
+      "imageID": 2,
+      "state": 3
+    }
+  ]
+}
+```
+
+**状态值说明：**
+- 0: 未检查
+- 1: 正在检查
+- 3: 正在审核
+- 4: 审核通过
+- 5: 废弃
+
+**curl示例：**
+```bash
+curl -X POST http://localhost:3000/api/image/update-states \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"states":[{"imageID":1,"state":1},{"imageID":2,"state":3}]}'
+```
+
+**响应示例（200）：**
+```json
+{
+  "message": "图片状态更新成功",
+  "results": [
+    {
+      "imageID": 1,
+      "affectedRows": 1,
+      "newState": 1
+    },
+    {
+      "imageID": 2,
+      "affectedRows": 1,
+      "newState": 3
+    }
+  ]
+}
+```
+
+**错误代码：**
+- 400：参数格式错误或状态值无效
+- 401：未授权或token无效
+- 404：指定imageID的图片不存在
+- 500：服务器内部错误
+
+## 9、获取检查任务详情
+
+**请求方法：** POST /api/image/update-captions
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**请求参数：**
+```json
+{
+  "captions": [
+    {
+      "imageID": 1,
+      "caption": "更新的图片描述1"
+    },
+    {
+      "imageID": 2,
+      "caption": "更新的图片描述2"
+    }
+  ]
+}
+```
+
+**curl示例：**
+```bash
+curl -X POST http://localhost:3000/api/image/update-captions \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"captions":[{"imageID":1,"caption":"更新的图片描述1"},{"imageID":2,"caption":"更新的图片描述2"}]}'
+```
+
+**响应示例（200）：**
+```json
+{
+  "message": "caption更新成功",
+  "results": [
+    {
+      "imageID": 1,
+      "affectedRows": 1
+    },
+    {
+      "imageID": 2,
+      "affectedRows": 1
+    }
+  ]
+}
+```
+
+**错误代码：**
+- 400：参数格式错误或缺少必要字段
+- 401：未授权或token无效
+- 404：指定imageID的图片不存在
+- 500：服务器内部错误
+
 ## 9、获取检查任务详情
 
 **请求方法：**GET /api/check-tasks/:taskId

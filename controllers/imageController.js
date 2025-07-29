@@ -268,6 +268,59 @@ class ImageController {
   }
 
 
+  static async updateImageStates(req, res) {
+    try {
+      const { states } = req.body;
+      
+      if (!states || !Array.isArray(states) || states.length === 0) {
+        return res.status(400).json({ message: '请提供有效的图片ID和state数组' });
+      }
+      
+      // 验证状态值是否有效
+      const validStates = [0, 1, 3, 4, 5];
+      for (const item of states) {
+        if (!item.imageID || item.state === undefined || !validStates.includes(item.state)) {
+          return res.status(400).json({ message: '每个state项必须包含有效的imageID和state值(0,1,3,4,5)' });
+        }
+      }
+      
+      const connection = await pool.getConnection();
+      await connection.beginTransaction();
+      
+      const results = [];
+      for (const item of states) {
+        // 检查图片是否存在
+        const [image] = await connection.query('SELECT imageID FROM image WHERE imageID = ?', [item.imageID]);
+        if (image.length === 0) {
+          await connection.rollback();
+          connection.release();
+          return res.status(404).json({ message: `图片不存在，imageID: ${item.imageID}` });
+        }
+        
+        const [result] = await connection.query(
+          'UPDATE image SET state = ? WHERE imageID = ?',
+          [item.state, item.imageID]
+        );
+        
+        results.push({
+          imageID: item.imageID,
+          affectedRows: result.affectedRows,
+          newState: item.state
+        });
+      }
+      
+      await connection.commit();
+      connection.release();
+      
+      res.json({
+        message: '图片状态更新成功',
+        results
+      });
+    } catch (error) {
+      res.status(500).json({ message: '更新图片状态失败', error: error.message });
+    }
+  }
+
   static async updateImageCaptions(req, res) {
     try {
       const { captions } = req.body;
@@ -358,20 +411,7 @@ class ImageController {
         if (currentGroup.length > 1) {
           duplicateGroups.push({
             chinaElementName: elements[i].chinaElementName,
-            images: currentGroup.map(item => ({
-              imageID: item.imageID,
-              chinaElementName: item.chinaElementName,
-              imgPath: item.imgPath,
-              imgName: item.imgName,
-              First: item.First,
-              Second: item.Second,
-              Third: item.Third,
-              Fourth: item.Fourth,
-              Fifth: item.Fifth,
-              state: item.state,
-              md5: item.md5,
-              caption: item.caption
-            }))
+            images: currentGroup
           });
           processed.add(elements[i].imageID);
         }
