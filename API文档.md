@@ -565,7 +565,46 @@ curl -X POST http://localhost:3000/api/image/update-states \
 - 404：指定imageID的图片不存在
 - 500：服务器内部错误
 
-## 9、获取检查任务详情
+## 9、重置密码接口
+
+**请求方法：** POST /api/user/reset-password
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**请求参数：**
+```json
+{
+  "currentPassword": "old_password",
+  "newPassword": "new_password"
+}
+```
+
+**curl示例：**
+```bash
+curl -X POST http://localhost:3000/api/user/reset-password \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"currentPassword":"old_password","newPassword":"new_password"}'
+```
+
+**响应示例（200）：**
+```json
+{
+  "message": "密码重置成功"
+}
+```
+
+**错误代码：**
+- 400：参数格式错误
+- 401：未授权或当前密码错误
+- 404：用户不存在
+- 500：服务器内部错误
+
+## 10、获取检查任务详情
 
 **请求方法：** POST /api/image/update-captions
 

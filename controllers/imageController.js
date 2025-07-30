@@ -148,7 +148,7 @@ class ImageController {
         const ext = path.extname(req.file.originalname).toLowerCase();
         // 构建完整存储路径
         // 使用resolve处理可能的绝对路径问题，确保正确拼接
-        const imgDir = pathParts.join(path.sep);
+        const imgDir = pathParts.join('/');
         const fullDir = path.resolve(__dirname, '../img', imgDir);
         const fileName = `${md5}${ext}`;
         const filePath = path.join(fullDir, fileName);
@@ -159,11 +159,17 @@ class ImageController {
         // 保存文件
         await fs.writeFile(filePath, req.file.buffer);
 
-        // 更新数据库中的md5、imgName和imgPath
-        const fullImgPath = path.join(imgDir, fileName);
+        // 使用正斜杠构造路径以确保跨平台一致性
+        const fullImgPath = `${imgDir}/${fileName}`;
         await pool.query(
           'UPDATE image SET md5 = ?, imgName = ?, imgPath = ? WHERE imageID = ?',
           [md5, fileName, fullImgPath, imageID]
+        );
+
+        // 获取更新后的记录以确保返回数据库中的imgPath
+        const [updatedImage] = await pool.query(
+          'SELECT imgPath FROM image WHERE imageID = ?',
+          [imageID]
         );
 
         // 返回成功响应
@@ -172,7 +178,7 @@ class ImageController {
           imageID: imageID,
           md5: md5,
           fileName: fileName,
-          filePath: path.join('img', imgDir, fileName)
+          imgPath: updatedImage[0].imgPath
         });
       } catch (dbError) {
         res.status(500).json({ code: 500, message: '数据库操作失败', error: dbError.message });

@@ -140,6 +140,34 @@ class UserController {
       res.status(500).json({ message: '刷新令牌失败', error: error.message });
     }
   }
+
+  // 重置密码
+  static async resetPassword(req, res) {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.user.userID;
+
+      // 获取用户当前密码
+      const [users] = await pool.query('SELECT password FROM user WHERE userID = ?', [userId]);
+      if (!users.length) {
+        return res.status(404).json({ message: '用户不存在' });
+      }
+
+      const user = users[0];
+      const validPassword = await bcrypt.compare(currentPassword, user.password);
+      if (!validPassword) {
+        return res.status(401).json({ message: '当前密码错误' });
+      }
+
+      // 加密新密码
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      await pool.query('UPDATE user SET password = ? WHERE userID = ?', [hashedNewPassword, userId]);
+
+      res.json({ message: '密码重置成功' });
+    } catch (error) {
+      res.status(500).json({ message: '重置密码失败', error: error.message });
+    }
+  }
 }
 
 module.exports = UserController;

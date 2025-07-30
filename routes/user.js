@@ -22,4 +22,7 @@ router.put('/:id/state', auth.verifyToken, auth.adminRequired, userController.up
 // 批量修改用户状态（管理员权限）
 router.put('/batch-state', auth.verifyToken, auth.adminRequired, userController.batchUpdateState);
 
+// 重置密码
+router.post('/reset-password', auth.verifyToken, userController.resetPassword);
+
 module.exports = router;
