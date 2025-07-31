@@ -892,35 +892,43 @@ curl -X GET http://localhost:3000/api/images/1
 - 请求URL：/api/images/by-titles
 - 请求头：
   Authorization: Bearer {token}
-- 请求参数：
-  page: 页码（默认1）
-  limit: 每页条数（默认10）
-  First: 一级标题（可选）
-  Second: 二级标题（可选）
-  Third: 三级标题（可选）
-  Fourth: 四级标题（可选）
-  Fifth: 五级标题（可选）
-- 响应示例：
+
+#### 请求参数
+| 参数名 | 类型 | 是否必填 | 描述 |
+|--------|------|----------|------|
+| page | int | 否 | 页码，默认1 |
+| limit | int | 否 | 每页数量，默认10 |
+| First | string | 否 | 一级标题 |
+| Second | string | 否 | 二级标题 |
+| Third | string | 否 | 三级标题 |
+| Fourth | string | 否 | 四级标题 |
+| Fifth | string | 否 | 五级标题 |
+| goodState | boolean | 否 | 可选参数，若为true则不返回状态为5的图片，默认返回所有图片 |
+
+#### 响应格式
 ```json
 {
-  "total": 50,
+  "total": 100,
   "page": 1,
   "limit": 10,
   "images": [
     {
       "imageID": 1,
       "First": "标题1",
-      "Second": "子标题1",
-      "Third": null,
-      "Fourth": null,
-      "Fifth": null,
-      "state": 0,
-      // ... 其他图片信息
+      "Second": "标题2",
+      ...
+      "state": 0
     },
-    // ... 更多图片
+    ...
   ]
 }
 ```
+
+#### 请求示例
+```curl
+curl -X GET "http://localhost:3000/api/image/by-titles?First=动物&goodState=true"
+```
+
 - 错误码：
   401: 未授权或token无效
   500: 服务器内部错误

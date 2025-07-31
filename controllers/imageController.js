@@ -220,6 +220,13 @@ class ImageController {
         queryParams.push(Fifth);
       }
 
+      // 处理goodState参数，过滤状态为5的图片
+      const { goodState } = req.query;
+      const isGoodState = goodState === 'true';
+      if (isGoodState) {
+        conditions.push('state != 5');
+      }
+
       // 基础查询语句
       let query = 'SELECT * FROM image';
       let countQuery = 'SELECT COUNT(*) AS total FROM image';
