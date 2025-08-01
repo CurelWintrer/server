@@ -604,7 +604,61 @@ curl -X POST http://localhost:3000/api/user/reset-password \
 - 404：用户不存在
 - 500：服务器内部错误
 
-## 10、获取检查任务详情
+
+## 10、根据imgName批量查询图片接口
+
+**请求方法：** POST /api/image/by-img-names
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**请求参数：**
+```json
+{
+  "imgNames": ["abc123.jpg", "def456.png"]
+}
+```
+
+**curl示例：**
+```bash
+curl -X POST http://localhost:3000/api/image/by-img-names \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"imgNames":["abc123.jpg","def456.png"]}'
+```
+
+**响应示例（200）：**
+```json
+{
+  "total": 2,
+  "images": [
+    {
+      "imageID": 1,
+      "imgName": "abc123.jpg",
+      "imgPath": "path/to/image.jpg",
+      "state": 0,
+      ...
+    },
+    {
+      "imageID": 2,
+      "imgName": "def456.png",
+      "imgPath": "path/to/another.jpg",
+      "state": 1,
+      ...
+    }
+  ]
+}
+```
+
+**错误代码：**
+- 400：参数格式错误或缺少必要字段
+- 401：未授权或token无效
+- 500：服务器内部错误
+
+## 11、获取检查任务详情
 
 **请求方法：** POST /api/image/update-captions
 

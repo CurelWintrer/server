@@ -17,5 +17,6 @@ router.get('/:id', auth.verifyToken, imageController.getImageById);
 router.post('/update-captions', auth.verifyToken, imageController.updateImageCaptions);
 router.post('/update-states', auth.verifyToken, imageController.updateImageStates);
 router.post('/upload', auth.verifyToken, upload.single('image'), imageController.uploadImage);
+router.post('/by-img-names', auth.verifyToken, imageController.getImagesByImgNames);
 
 module.exports = router;

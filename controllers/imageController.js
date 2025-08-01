@@ -369,7 +369,8 @@ class ImageController {
 
         results.push({
           imageID: item.imageID,
-          affectedRows: result.affectedRows
+          affectedRows: result.affectedRows,
+          newCaption: item.caption
         });
       }
 
@@ -385,7 +386,31 @@ class ImageController {
     }
   }
 
-    // 查询重复或类似的chinaElementName
+    // 根据imgName字段批量查询图片
+  static async getImagesByImgNames(req, res) {
+    try {
+      const { imgNames } = req.body;
+
+      if (!imgNames || !Array.isArray(imgNames) || imgNames.length === 0) {
+        return res.status(400).json({ code: 400, message: '请提供有效的imgNames数组' });
+      }
+
+      // 构建IN查询条件
+      const placeholders = imgNames.map(() => '?').join(',');
+      const query = `SELECT * FROM image WHERE imgName IN (${placeholders})`;
+
+      const [images] = await pool.query(query, imgNames);
+
+      res.json({
+        total: images.length,
+        images
+      });
+    } catch (error) {
+      res.status(500).json({ code: 500, message: '按imgName批量查询图片失败', error: error.message });
+    }
+  }
+
+  // 查询重复或类似的chinaElementName
   static async getDuplicateChinaElements(req, res) {
     try {
       // 查询所有非空的chinaElementName及完整图片信息
