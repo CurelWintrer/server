@@ -1,3 +1,13 @@
+create table image_title
+(
+    imageTitleID int auto_increment
+        primary key,
+    title        varchar(255) not null,
+    parentID     int          null,
+    constraint image_title_image_title__fk
+        foreign key (parentID) references image_title (imageTitleID)
+);
+
 create table user
 (
     userID     int auto_increment
@@ -5,7 +15,7 @@ create table user
     name       varchar(100)                       not null,
     email      varchar(255)                       not null,
     password   varchar(255)                       not null,
-    role       varchar(50)                        not null,
+    role       int                                not null,
     state      int      default 1                 null,
     created_at datetime default CURRENT_TIMESTAMP not null,
     constraint email

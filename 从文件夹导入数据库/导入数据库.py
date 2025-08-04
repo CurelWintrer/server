@@ -103,6 +103,64 @@ def process_json_file(cursor, file_path, base_dir):
         logging.error(f"处理文件时出错: {file_path}")
         logging.error(traceback.format_exc())
         return 0
+def analyze_and_insert_titles(cursor):
+    """分析image表中的标题层级关系并插入到image_title表"""
+    try:
+        # 首先清空标题表（如果需要保留已有数据，可以删除这部分）
+        cursor.execute("TRUNCATE TABLE image_title")
+        
+        # 获取所有不重复的标题层级
+        cursor.execute("""
+            SELECT DISTINCT First, Second, Third, Fourth, Fifth 
+            FROM image 
+            WHERE First IS NOT NULL
+            ORDER BY First, Second, Third, Fourth, Fifth
+        """)
+        
+        title_rows = cursor.fetchall()
+        
+        # 用于存储已插入的标题及其ID
+        title_cache = {}  # 格式: {('First', 'Second',...): id}
+        
+        for row in title_rows:
+            First, Second, Third, Fourth, Fifth = row
+            
+            # 处理每一级标题
+            for level in range(1, 6):
+                current_level_titles = row[:level]
+                
+                # 如果这一级标题不存在，则跳过
+                if current_level_titles[-1] is None:
+                    continue
+                
+                # 检查是否已经处理过这个标题
+                if current_level_titles in title_cache:
+                    continue
+                
+                # 确定父级ID
+                parent_id = None
+                if level > 1:
+                    parent_titles = current_level_titles[:-1]
+                    parent_id = title_cache.get(parent_titles)
+                
+                # 插入当前标题
+                insert_sql = """
+                    INSERT INTO image_title (title, parentID, level)
+                    VALUES (%s, %s, %s)
+                """
+                current_title = current_level_titles[-1]
+                cursor.execute(insert_sql, (current_title, parent_id, level))
+                
+                # 获取新插入的ID并缓存
+                new_id = cursor.lastrowid
+                title_cache[current_level_titles] = new_id
+        
+        return len(title_cache)
+    
+    except Exception as e:
+        logging.error(f"分析标题层级关系时出错: {str(e)}")
+        logging.error(traceback.format_exc())
+        return 0
 
 def main():
     # 选择文件夹
@@ -146,6 +204,11 @@ def main():
                     entry_count += processed
                     file_count += 1
     
+    # 分析并插入标题层级关系
+    print("\n分析标题层级关系...")
+    title_count = analyze_and_insert_titles(cursor)
+    print(f"成功插入 {title_count} 条标题记录")
+    
     # 提交事务并关闭连接
     conn.commit()
     cursor.close()
@@ -153,7 +216,8 @@ def main():
     
     print("\n处理完成!")
     print(f"成功处理 {file_count} 个JSON文件")
-    print(f"导入 {entry_count} 条记录到数据库")
+    print(f"导入 {entry_count} 条记录到image表")
+    print(f"导入 {title_count} 条记录到image_title表")
 
 if __name__ == "__main__":
     main()
