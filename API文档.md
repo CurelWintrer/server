@@ -658,7 +658,60 @@ curl -X POST http://localhost:3000/api/image/by-img-names \
 - 401：未授权或token无效
 - 500：服务器内部错误
 
-## 11、获取检查任务详情
+## 11、获取标题树接口
+
+#### 请求方法
+GET /api/image/title-tree
+
+#### 请求头
+Authorization: Bearer {token}
+
+#### 响应格式
+```json
+{
+  "success": true,
+  "titleTree": [
+    {
+      "id": 1,
+      "title": "一级标题1",
+      "children": [
+        {
+          "id": 2,
+          "title": "二级标题1-1",
+          "children": []
+        },
+        {
+          "id": 3,
+          "title": "二级标题1-2",
+          "children": [
+            {
+              "id": 4,
+              "title": "三级标题1-2-1",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "一级标题2",
+      "children": []
+    }
+  ]
+}
+```
+
+#### 请求示例
+```curl
+curl -X GET -H "Authorization: Bearer {token}" http://localhost:3000/api/image/title-tree
+```
+
+#### 错误码
+- 401: 未授权或token无效
+- 500: 服务器内部错误
+
+## 12、获取检查任务详情
 
 **请求方法：** POST /api/image/update-captions
 
@@ -821,7 +874,7 @@ curl -X PUT http://localhost:3000/api/check-tasks/1/state \
 
 ### 9.1 分页查询图片
 
-**请求方法：**GET /api/images
+**请求方法：**GET /api/image
 
 **请求参数：**
 
@@ -831,7 +884,7 @@ curl -X PUT http://localhost:3000/api/check-tasks/1/state \
 **curl示例：**
 
 ```bash
-curl -X GET "http://localhost:3000/api/images?page=1&limit=10"
+curl -X GET "http://localhost:3000/api/image?page=1&limit=10"
 ```
 
 **响应示例（200）：**
@@ -863,7 +916,7 @@ curl -X GET "http://localhost:3000/api/images?page=1&limit=10"
 
 ### 9.2 查询单张图片
 
-**请求方法：**GET /api/images/{id}
+**请求方法：**GET /api/image/{id}
 
 **路径参数：**
 
@@ -872,7 +925,7 @@ curl -X GET "http://localhost:3000/api/images?page=1&limit=10"
 **curl示例：**
 
 ```bash
-curl -X GET http://localhost:3000/api/images/1
+curl -X GET http://localhost:3000/api/image/1
 ```
 
 **响应示例（200）：**
@@ -904,7 +957,7 @@ curl -X GET http://localhost:3000/api/images/1
 
 ### 11、获取图片统计数据
 - 请求方法：GET
-- 请求URL：/api/images/statistics
+- 请求URL：/api/image/statistics
 - 请求头：
   Authorization: Bearer {token}
 - 响应示例：
@@ -912,22 +965,24 @@ curl -X GET http://localhost:3000/api/images/1
 {
   "total": 120,
   "stateCounts": {
-    "未检查": 30,
-    "正在检查": 25,
-    "正在审核": 20,
-    "审核通过": 40,
-    "废弃": 5
+    "0": 30,
+    "1": 25,
+    "2": 20,
+    "3": 40,
+    "4": 5,
+    "5": 10,
   },
   "titleStatistics": {
     "First": {
       "标题1": {
         "total": 50,
         "stateCounts": {
-          "未检查": 10,
-          "正在检查": 15,
-          "正在审核": 5,
-          "审核通过": 18,
-          "废弃": 2
+          "0": 10,
+          "1": 15,
+          "2": 5,
+          "3": 18,
+          "4": 2,
+          "5": 10,
         }
       },
       // ... 其他一级标题统计
@@ -943,7 +998,7 @@ curl -X GET http://localhost:3000/api/images/1
 
 ### 12、按多级标题查询图片
 - 请求方法：GET
-- 请求URL：/api/images/by-titles
+- 请求URL：/api/image/by-titles
 - 请求头：
   Authorization: Bearer {token}
 
@@ -980,8 +1035,7 @@ curl -X GET http://localhost:3000/api/images/1
 
 #### 请求示例
 ```curl
-curl -X GET "http://localhost:3000/api/image/by-titles?First=动物&goodState=true"
-```
+curl -X GET "http://localhost:3000/api/image/by-titles?First=动物&goodState=true"```
 
 - 错误码：
   401: 未授权或token无效
@@ -990,7 +1044,7 @@ curl -X GET "http://localhost:3000/api/image/by-titles?First=动物&goodState=tr
 
 ### 13、获取各级标题类型
 - 请求方法：GET
-- 请求URL：/api/images/title-types
+- 请求URL：/api/image/title-types
 - 请求头：
   Authorization: Bearer {token}
 - 响应示例：

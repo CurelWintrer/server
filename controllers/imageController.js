@@ -410,6 +410,52 @@ class ImageController {
     }
   }
 
+  // 获取标题树
+  static async getTitleTree(req, res) {
+    try {
+      // 查询所有标题
+      const [allTitles] = await pool.query('SELECT imageTitleID, title, parentID FROM image_title');
+
+      // 构建树形结构
+      const titleMap = new Map();
+      const rootTitles = [];
+
+      // 首先将所有标题放入映射
+      allTitles.forEach(title => {
+        titleMap.set(title.imageTitleID, {
+          id: title.imageTitleID,
+          title: title.title,
+          children: []
+        });
+      });
+
+      // 构建树结构
+      allTitles.forEach(title => {
+        if (title.parentID === null) {
+          // 根节点
+          rootTitles.push(titleMap.get(title.imageTitleID));
+        } else {
+          // 子节点
+          const parent = titleMap.get(title.parentID);
+          if (parent) {
+            parent.children.push(titleMap.get(title.imageTitleID));
+          }
+        }
+      });
+
+      res.json({
+        success: true,
+        titleTree: rootTitles
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: '获取标题树失败',
+        error: error.message
+      });
+    }
+  }
+
   // 查询重复或类似的chinaElementName
   static async getDuplicateChinaElements(req, res) {
     try {

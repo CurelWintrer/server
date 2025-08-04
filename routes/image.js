@@ -13,6 +13,7 @@ router.get('/statistics', auth.verifyToken, imageController.getImageStatistics);
 router.get('/by-titles', auth.verifyToken, imageController.getImagesByTitles);
 router.get('/title-types', auth.verifyToken, imageController.getTitleTypes);
 router.get('/duplicate-elements', auth.verifyToken, imageController.getDuplicateChinaElements);
+router.get('/title-tree', auth.verifyToken, imageController.getTitleTree);
 router.get('/:id', auth.verifyToken, imageController.getImageById);
 router.post('/update-captions', auth.verifyToken, imageController.updateImageCaptions);
 router.post('/update-states', auth.verifyToken, imageController.updateImageStates);
