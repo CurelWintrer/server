@@ -224,7 +224,7 @@ class ImageController {
       const { goodState } = req.query;
       const isGoodState = goodState === 'true';
       if (isGoodState) {
-        conditions.push('state != 5');
+        conditions.push('state != 4');
       }
 
       // 基础查询语句
