@@ -290,10 +290,10 @@ class ImageController {
       }
       
       // 验证状态值是否有效
-      const validStates = [0, 1, 3, 4, 5];
+      const validStates = [0, 1, 2, 3, 4];
       for (const item of states) {
         if (!item.imageID || item.state === undefined || !validStates.includes(item.state)) {
-          return res.status(400).json({ message: '每个state项必须包含有效的imageID和state值(0,1,3,4,5)' });
+          return res.status(400).json({ message: '每个state项必须包含有效的imageID和state值(0,1,2,3,4)' });
         }
       }
       
