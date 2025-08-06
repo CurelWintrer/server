@@ -2,6 +2,36 @@
 
 
 
+## 0、获取软件版本号
+
+**请求方法：**GET /api/system/version
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**请求参数：** 无
+
+**curl示例：**
+```bash
+curl -X GET http://localhost:3000/api/system/version \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+**响应示例（200）：**
+```json
+{
+  "success": true,
+  "version": "1.0.0"
+}
+```
+
+**错误代码：**
+- 401：未授权或token无效
+- 500：服务器内部错误
+
+
 ## 1、用户注册
 
 **请求方法：**POST /api/user/register

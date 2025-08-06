@@ -6,6 +6,7 @@ const pool = require('./db');
 const userRoutes = require('./routes/user');
 const imageRoutes = require('./routes/image');
 const checkTaskRoutes = require('./routes/checkTask');
+const systemRoutes = require('./routes/system');
 
 const app = express();
 app.use(cors());
@@ -28,6 +29,7 @@ pool.getConnection()
 app.use('/api/user', userRoutes);
 app.use('/api/image', imageRoutes);
 app.use('/api/check-tasks', checkTaskRoutes);
+app.use('/api/system', systemRoutes);
 
 
 
