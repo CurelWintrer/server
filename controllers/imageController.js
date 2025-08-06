@@ -40,7 +40,7 @@ class ImageController {
       );
       const stateCounts = { 0: 0, 1: 0, 3: 0, 4: 0, 5: 0 };
       stateResult.forEach(item => {
-        if ([0, 1, 3, 4, 5].includes(item.state)) {
+        if ([0, 1, 2, 3, 4].includes(item.state)) {
           stateCounts[item.state] = item.count;
         }
       });
@@ -70,7 +70,7 @@ class ImageController {
         });
 
         titleStateResult.forEach(item => {
-          if (levelStats[item[level]] && [0, 1, 3, 4, 5].includes(item.state)) {
+          if (levelStats[item[level]] && [0, 1, 2, 3, 4].includes(item.state)) {
             levelStats[item[level]].stateCounts[item.state] = item.count;
           }
         });
@@ -83,9 +83,9 @@ class ImageController {
         stateCounts: {
           '0': stateCounts[0],
           '1': stateCounts[1],
-          '2': stateCounts[3],
-          '3': stateCounts[4],
-          '4': stateCounts[5]
+          '2': stateCounts[2],
+          '3': stateCounts[3],
+          '4': stateCounts[4]
         },
         titleStatistics
       });
