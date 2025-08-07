@@ -17,6 +17,7 @@ router.get('/title-tree', auth.verifyToken, imageController.getTitleTree);
 router.get('/:id', auth.verifyToken, imageController.getImageById);
 router.post('/update-captions', auth.verifyToken, imageController.updateImageCaptions);
 router.post('/update-states', auth.verifyToken, imageController.updateImageStates);
+router.post('/update-china-element-name', auth.verifyToken, imageController.updateImageChinaElementName);
 router.post('/upload', auth.verifyToken, upload.single('image'), imageController.uploadImage);
 router.post('/by-img-names', auth.verifyToken, imageController.getImagesByImgNames);
 

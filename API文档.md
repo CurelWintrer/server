@@ -472,7 +472,50 @@ curl -X POST http://localhost:3000/api/image/upload \
 - 401：未授权或token无效
 - 500：服务器内部错误
 
-## 10、修改图片caption
+## 10、修改图片chinaElementName
+
+**请求方法：** POST /api/image/update-china-element-name
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**请求参数：**
+```json
+{
+  "imageID": 1,
+  "chinaElementName": "新的中国元素名称"
+}
+```
+
+**curl示例：**
+```bash
+curl -X POST http://localhost:3000/api/image/update-china-element-name \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"imageID":1,"chinaElementName":"新的中国元素名称"}'
+```
+
+**响应示例（200）：**
+```json
+{
+  "message": "chinaElementName更新成功",
+  "imageID": 1,
+  "newChinaElementName": "新的中国元素名称",
+  "affectedRows": 1
+}
+```
+
+**错误代码：**
+- 400：必须提供imageID和chinaElementName
+- 401：未授权或token无效
+- 404：图片不存在
+- 500：服务器内部错误
+
+
+## 11、修改图片caption
 
 **请求方法：** POST /api/image/update-captions
 
@@ -870,6 +913,40 @@ Content-Type: application/json
   "state": 1
 }
 ```
+
+## 11、放弃检查任务
+
+**请求方法：**DELETE /api/check-tasks/:taskId
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+```
+
+**路径参数：**
+- taskId: 检查任务ID
+
+**请求参数：** 无
+
+**curl示例：**
+```bash
+curl -X DELETE http://localhost:3000/api/check-tasks/1 \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+**响应示例（200）：**
+```json
+{
+  "message": "检查任务已放弃",
+  "taskId": 1
+}
+```
+
+**错误代码：**
+- 401：未授权或token无效
+- 404：检查任务不存在或不属于当前用户
+- 500：服务器内部错误
+
 
 **参数说明：**
 - state: 任务状态（0: 未开始, 1: 进行中, 2: 已完成）

@@ -15,4 +15,7 @@ router.get('/:taskId', auth.verifyToken, checkTaskController.getCheckTaskById);
 // 更新质检任务状态（需要身份认证）
 router.put('/:taskId/state', auth.verifyToken, checkTaskController.updateTaskState);
 
+// 放弃检查任务（需要身份认证）
+router.delete('/:taskId', auth.verifyToken, checkTaskController.abandonCheckTask);
+
 module.exports = router;

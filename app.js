@@ -14,6 +14,7 @@ app.use(cors());
 dotenv.config();
 app.use(express.json());
 app.use('/img', express.static(path.join(__dirname, 'img')));
+app.use('/exe', express.static(path.join(__dirname, 'exe')));
 
 // 数据库连接测试
 pool.getConnection()

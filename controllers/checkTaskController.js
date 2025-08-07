@@ -121,6 +121,8 @@ class CheckTaskController {
 
                 // 添加固定条件和分页参数
                 conditions.push('state = 0');
+                conditions.push('imageListID IS NULL');
+
                 queryParams.push(count);
 
                 // 执行查询
@@ -206,6 +208,52 @@ class CheckTaskController {
             res.status(200).json(updatedTask[0]);
         } catch (error) {
             res.status(500).json({ message: '更新任务状态失败', error: error.message });
+        }
+    }
+
+    // 放弃检查任务
+    static async abandonCheckTask(req, res) {
+        try {
+            const { taskId } = req.params;
+            const userID = req.user.userID;
+
+            // 检查任务是否存在且属于当前用户
+            const [task] = await pool.query(
+                'SELECT * FROM checkImageList WHERE checkImageListID = ? AND userID = ?',
+                [taskId, userID]
+            );
+
+            if (task.length === 0) {
+                return res.status(404).json({ message: '检查任务不存在或不属于当前用户' });
+            }
+
+            const connection = await pool.getConnection();
+            try {
+                await connection.beginTransaction();
+
+                // 1. 将对应图片的state改为0，imageListID改为null
+                await connection.query(
+                    'UPDATE image SET state = 0, imageListID = NULL WHERE imageListID = ?',
+                    [taskId]
+                );
+
+                // 2. 删除检查任务
+                await connection.query(
+                    'DELETE FROM checkImageList WHERE checkImageListID = ?',
+                    [taskId]
+                );
+
+                await connection.commit();
+
+                res.status(200).json({ message: '检查任务已放弃', taskId });
+            } catch (error) {
+                await connection.rollback();
+                throw error;
+            } finally {
+                connection.release();
+            }
+        } catch (error) {
+            res.status(500).json({ message: '放弃检查任务失败', error: error.message });
         }
     }
 }

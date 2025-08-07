@@ -510,6 +510,38 @@ class ImageController {
       res.status(500).json({ message: '查询重复元素失败', error: error.message });
     }
   }
+
+  // 更新图片的chinaElementName
+  static async updateImageChinaElementName(req, res) {
+    try {
+      const { imageID, chinaElementName } = req.body;
+
+      if (!imageID || chinaElementName === undefined) {
+        return res.status(400).json({ message: '必须提供imageID和chinaElementName' });
+      }
+
+      // 检查图片是否存在
+      const [image] = await pool.query('SELECT imageID FROM image WHERE imageID = ?', [imageID]);
+      if (image.length === 0) {
+        return res.status(404).json({ message: '图片不存在' });
+      }
+
+      // 更新chinaElementName
+      const [result] = await pool.query(
+        'UPDATE image SET chinaElementName = ? WHERE imageID = ?',
+        [chinaElementName, imageID]
+      );
+
+      res.json({
+        message: 'chinaElementName更新成功',
+        imageID: imageID,
+        newChinaElementName: chinaElementName,
+        affectedRows: result.affectedRows
+      });
+    } catch (error) {
+      res.status(500).json({ message: '更新chinaElementName失败', error: error.message });
+    }
+  }
 }
 
 module.exports = ImageController;

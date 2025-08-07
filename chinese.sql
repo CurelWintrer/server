@@ -47,11 +47,11 @@ create table image
     imageID          int auto_increment
         primary key,
     md5              char(32)                           not null,
-    First            int                                null,
-    Second           int                                null,
-    Third            int                                null,
-    Fourth           int                                null,
-    Fifth            int                                null,
+    First            varchar(100)                       null,
+    Second           varchar(100)                       null,
+    Third            varchar(100)                       null,
+    Fourth           varchar(100)                       null,
+    Fifth            varchar(100)                       null,
     imgName          varchar(255)                       null,
     imgPath          text                               null,
     chinaElementName varchar(255)                       null,
@@ -62,17 +62,7 @@ create table image
     updated_at       datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,
     constraint image_ibfk_1
         foreign key (imageListID) references checkimagelist (checkImageListID)
-            on delete set null,
-    constraint image_image_title_imageTitleID_fk
-        foreign key (First) references image_title (imageTitleID),
-    constraint image_image_title_imageTitleID_fk_2
-        foreign key (Second) references image_title (imageTitleID),
-    constraint image_image_title_imageTitleID_fk_3
-        foreign key (Third) references image_title (imageTitleID),
-    constraint image_image_title_imageTitleID_fk_4
-        foreign key (Fourth) references image_title (imageTitleID),
-    constraint image_image_title_imageTitleID_fk_5
-        foreign key (Fifth) references image_title (imageTitleID)
+            on delete set null
 );
 
 create index imageListID
