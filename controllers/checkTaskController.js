@@ -2,7 +2,7 @@ const pool = require('../db');
 
 class CheckTaskController {
 
-    //获取用户的检查任务列表
+    //获取用户的检查任务列表并更新任务信息
     static async getUserCheckTasks(req, res) {
         try {
             const userID = req.user.userID;
@@ -23,12 +23,63 @@ class CheckTaskController {
                 [userID, limit, offset]
             );
 
-            res.status(200).json({
-                total,
-                page: parseInt(page),
-                limit: parseInt(limit),
-                tasks
-            });
+            // 如果有任务，更新每个任务的checked_count和状态
+            if (tasks.length > 0) {
+                const connection = await pool.getConnection();
+                try {
+                    await connection.beginTransaction();
+
+                    for (const task of tasks) {
+                        // 查询状态不等于1的图片数量
+                        const [imageResult] = await connection.query(
+                            'SELECT COUNT(*) as count FROM image WHERE imageListID = ? AND state != 1',
+                            [task.checkImageListID]
+                        );
+                        const checkedCount = imageResult[0].count;
+
+                        // 更新任务的checked_count
+                        await connection.query(
+                            'UPDATE checkImageList SET checked_count = ? WHERE checkImageListID = ?',
+                            [checkedCount, task.checkImageListID]
+                        );
+
+                        // 如果checked_count等于imageCount，更新state为2
+                        if (checkedCount === task.imageCount) {
+                            await connection.query(
+                                'UPDATE checkImageList SET state = 2 WHERE checkImageListID = ?',
+                                [task.checkImageListID]
+                            );
+                        }
+                    }
+
+                    await connection.commit();
+
+                    // 重新查询更新后的任务列表
+                    const [updatedTasks] = await pool.query(
+                        'SELECT * FROM checkImageList WHERE userID = ? ORDER BY checkImageListID DESC LIMIT ? OFFSET ?',
+                        [userID, limit, offset]
+                    );
+
+                    res.status(200).json({
+                        total,
+                        page: parseInt(page),
+                        limit: parseInt(limit),
+                        tasks: updatedTasks
+                    });
+                } catch (error) {
+                    await connection.rollback();
+                    throw error;
+                } finally {
+                    connection.release();
+                }
+            } else {
+                res.status(200).json({
+                    total,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    tasks: []
+                });
+            }
         } catch (error) {
             res.status(500).json({ message: '查询检查任务失败', error: error.message });
         }

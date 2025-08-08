@@ -391,7 +391,7 @@ curl -X POST http://localhost:3000/api/check-tasks \
 - 404：没有找到符合条件的图片
 - 500：服务器内部错误
 
-## 8、查询用户的检查任务
+## 8、查询用户的检查任务并更新任务信息
 
 **请求方法：**GET /api/check-tasks/user
 
@@ -403,6 +403,11 @@ Authorization: Bearer <jwt_token>
 **请求参数：**
 - page: 页码（默认1）
 - limit: 每页数量（默认10）
+
+**功能说明：**
+- 查询用户的检查任务列表
+- 自动更新每个任务的checked_count（状态不等于1的图片数量）
+- 如果checked_count等于imageCount，自动将任务state更新为2
 
 **curl示例：**
 ```bash
@@ -420,9 +425,9 @@ curl -X GET "http://localhost:3000/api/check-tasks/user?page=1&limit=10" \
     {
       "checkImageListID": 1,
       "userID": 2,
-      "state": 0,
+      "state": 2,  // 如果checked_count等于imageCount，state为2
       "imageCount": 10,
-      "checked_count": 3
+      "checked_count": 10  // 状态不等于1的图片数量
     },
     ...
   ]
