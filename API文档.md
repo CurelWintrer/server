@@ -470,13 +470,22 @@ curl -X POST http://localhost:3000/api/image \
 ```json
 {
   "message": "图片添加成功",
-  "imageID": 123,
-  "First": "历史故事",
-  "Second": "政治与军事故事",
-  "Third": null,
-  "Fourth": null,
-  "Fifth": null,
-  "caption": "这是一张历史图片"
+  "image": {
+    "imageID": 123,
+    "First": "历史故事",
+    "Second": "政治与军事故事",
+    "Third": null,
+    "Fourth": null,
+    "Fifth": null,
+    "caption": "这是一张历史图片",
+    "state": 0,
+    "md5": null,
+    "imgName": null,
+    "imgPath": null,
+    "chinaElementName": null,
+    "createdAt": "2023-11-15T08:30:00Z",
+    "updatedAt": "2023-11-15T08:30:00Z"
+  }
 }
 ```
 
@@ -803,19 +812,23 @@ Authorization: Bearer {token}
     {
       "id": 1,
       "title": "一级标题1",
+      "remark": "标题备注信息",
       "children": [
         {
           "id": 2,
           "title": "二级标题1-1",
+          "remark": "子标题备注信息",
           "children": []
         },
         {
           "id": 3,
           "title": "二级标题1-2",
+          "remark": "子标题备注信息",
           "children": [
             {
               "id": 4,
               "title": "三级标题1-2-1",
+              "remark": "子标题备注信息",
               "children": []
             }
           ]
@@ -825,6 +838,7 @@ Authorization: Bearer {token}
     {
       "id": 5,
       "title": "一级标题2",
+      "remark": "标题备注信息",
       "children": []
     }
   ]
@@ -839,6 +853,48 @@ curl -X GET -H "Authorization: Bearer {token}" http://localhost:3000/api/image/t
 #### 错误码
 - 401: 未授权或token无效
 - 500: 服务器内部错误
+
+## 12、修改标题备注接口
+
+**请求方法：** POST /api/image/update-title-remark
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**请求参数：**
+```json
+{
+  "imageTitleID": 1,
+  "remark": "新的标题备注内容"
+}
+```
+
+**curl示例：**
+```bash
+curl -X POST http://localhost:3000/api/image/update-title-remark \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"imageTitleID":1,"remark":"新的标题备注内容"}'
+```
+
+**响应示例（200）：**
+```json
+{
+  "message": "标题备注更新成功",
+  "imageTitleID": 1,
+  "newRemark": "新的标题备注内容",
+  "affectedRows": 1
+}
+```
+
+**错误代码：**
+- 400：必须提供imageTitleID和remark
+- 401：未授权或token无效
+- 404：标题不存在
+- 500：服务器内部错误
 
 ## 12、获取检查任务详情
 

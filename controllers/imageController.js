@@ -413,8 +413,8 @@ class ImageController {
   // 获取标题树
   static async getTitleTree(req, res) {
     try {
-      // 查询所有标题
-      const [allTitles] = await pool.query('SELECT imageTitleID, title, parentID FROM image_title');
+      // 查询所有标题，包含remark字段
+      const [allTitles] = await pool.query('SELECT imageTitleID, title, parentID, level, remark FROM image_title');
 
       // 构建树形结构
       const titleMap = new Map();
@@ -425,7 +425,9 @@ class ImageController {
         titleMap.set(title.imageTitleID, {
           id: title.imageTitleID,
           title: title.title,
-          children: []
+          remark: title.remark,
+          level: title.level,
+          children: [],
         });
       });
 
@@ -543,6 +545,38 @@ class ImageController {
     }
   }
 
+  // 修改标题的remark
+  static async updateImageTitleRemark(req, res) {
+    try {
+      const { imageTitleID, remark } = req.body;
+
+      if (!imageTitleID || remark === undefined) {
+        return res.status(400).json({ message: '必须提供imageTitleID和remark' });
+      }
+
+      // 检查标题是否存在
+      const [title] = await pool.query('SELECT imageTitleID FROM image_title WHERE imageTitleID = ?', [imageTitleID]);
+      if (title.length === 0) {
+        return res.status(404).json({ message: '标题不存在' });
+      }
+
+      // 更新remark
+      const [result] = await pool.query(
+        'UPDATE image_title SET remark = ? WHERE imageTitleID = ?',
+        [remark, imageTitleID]
+      );
+
+      res.json({
+        message: '标题remark更新成功',
+        imageTitleID: imageTitleID,
+        newRemark: remark,
+        affectedRows: result.affectedRows
+      });
+    } catch (error) {
+      res.status(500).json({ message: '更新标题remark失败', error: error.message });
+    }
+  }
+
   // 添加新图片
   static async addImage(req, res) {
     try {
@@ -561,11 +595,12 @@ class ImageController {
 
       const newImageID = result.insertId;
 
+      // 查询完整的图片信息
+      const [newImage] = await pool.query('SELECT * FROM image WHERE imageID = ?', [newImageID]);
+
       res.status(201).json({
         message: '图片添加成功',
-        imageID: newImageID,
-        First, Second, Third, Fourth, Fifth,
-        caption: caption || ''
+        image: newImage[0]
       });
     } catch (error) {
       res.status(500).json({ message: '添加图片失败', error: error.message });
