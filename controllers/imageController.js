@@ -542,6 +542,35 @@ class ImageController {
       res.status(500).json({ message: '更新chinaElementName失败', error: error.message });
     }
   }
+
+  // 添加新图片
+  static async addImage(req, res) {
+    try {
+      const { First, Second, Third, Fourth, Fifth, caption } = req.body;
+
+      // 验证至少提供一个标题
+      if (!First && !Second && !Third && !Fourth && !Fifth) {
+        return res.status(400).json({ message: '至少提供一个标题参数' });
+      }
+
+      // 插入新图片记录
+      const [result] = await pool.query(
+        'INSERT INTO image (First, Second, Third, Fourth, Fifth, caption, state) VALUES (?, ?, ?, ?, ?, ?, 0)',
+        [First, Second, Third, Fourth, Fifth, caption || '']
+      );
+
+      const newImageID = result.insertId;
+
+      res.status(201).json({
+        message: '图片添加成功',
+        imageID: newImageID,
+        First, Second, Third, Fourth, Fifth,
+        caption: caption || ''
+      });
+    } catch (error) {
+      res.status(500).json({ message: '添加图片失败', error: error.message });
+    }
+  }
 }
 
 module.exports = ImageController;

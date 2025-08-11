@@ -434,7 +434,58 @@ curl -X GET "http://localhost:3000/api/check-tasks/user?page=1&limit=10" \
 }
 ```
 
-## 9、文件上传接口
+## 9、添加图片接口
+
+**请求方法：**POST /api/image
+
+**请求头：**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**请求参数：**
+```json
+{
+  "First": "一级标题（可选）",
+  "Second": "二级标题（可选）",
+  "Third": "三级标题（可选）",
+  "Fourth": "四级标题（可选）",
+  "Fifth": "五级标题（可选）",
+  "caption": "图片描述（可选）"
+}
+```
+
+**注意：**至少需要提供一个标题参数（First/Second/Third/Fourth/Fifth）
+
+**curl示例：**
+```bash
+curl -X POST http://localhost:3000/api/image \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{"First":"历史故事","Second":"政治与军事故事","caption":"这是一张历史图片"}'
+```
+
+**响应示例（201）：**
+```json
+{
+  "message": "图片添加成功",
+  "imageID": 123,
+  "First": "历史故事",
+  "Second": "政治与军事故事",
+  "Third": null,
+  "Fourth": null,
+  "Fifth": null,
+  "caption": "这是一张历史图片"
+}
+```
+
+**错误代码：**
+- 400：至少提供一个标题参数
+- 401：未授权或token无效
+- 500：服务器内部错误
+
+## 10、文件上传接口
 
 **请求方法：** POST /api/image/upload
 

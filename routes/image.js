@@ -7,6 +7,9 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+// 添加新图片
+router.post('/', auth.verifyToken, imageController.addImage);
+
 // 分页查询图片
 router.get('/', auth.verifyToken, imageController.getImages);
 router.get('/statistics', auth.verifyToken, imageController.getImageStatistics);

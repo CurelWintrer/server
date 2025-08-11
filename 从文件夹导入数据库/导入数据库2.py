@@ -37,6 +37,72 @@ def parse_levels(base_dir, file_path):
     
     return tuple(levels[:5])
 
+# def process_json_file(cursor, file_path, base_dir):
+#     """处理单个JSON文件并导入到数据库"""
+#     try:
+#         with open(file_path, 'r', encoding='utf-8') as f:
+#             data = json.load(f)
+        
+#         if not isinstance(data, list):
+#             logging.error(f"JSON文件不是数组格式: {file_path}")
+#             return
+        
+#         for entry in data:
+#             # 检查必填字段
+#             if 'Img_path' not in entry or 'Img_name' not in entry:
+#                 logging.error(f"JSON条目缺少必要字段: {file_path}")
+#                 continue
+            
+#             img_relative_path = entry['Img_path']
+#             img_full_path = os.path.join(base_dir, img_relative_path)
+            
+#             # 从路径获取层级信息
+#             levels = parse_levels(base_dir, img_full_path)
+            
+#             # 计算图片MD5
+#             md5_val = calculate_md5(img_full_path)
+#             if not md5_val:
+#                 continue
+            
+#             # 准备数据库插入数据
+#             current_time = datetime.now()
+#             insert_data = {
+#                 'md5': md5_val,
+#                 'First': levels[0],
+#                 'Second': levels[1],
+#                 'Third': levels[2],
+#                 'Fourth': levels[3],
+#                 'Fifth': levels[4],
+#                 'imgName': entry.get('Img_name'),
+#                 'imgPath': entry['Img_path'],  
+#                 'chinaElementName': entry.get('China_element_name', None),
+#                 'caption': entry.get('caption', None),
+#                 'state': 0,
+#                 'imageListID': None,
+#                 'created_at': current_time,
+#                 'updated_at': current_time
+#             }
+            
+#             # 执行SQL插入
+#             sql = """
+#             INSERT INTO image (
+#                 md5, First, Second, Third, Fourth, Fifth, 
+#                 imgName, imgPath, chinaElementName, caption, 
+#                 state, imageListID, created_at, updated_at
+#             ) VALUES (
+#                 %(md5)s, %(First)s, %(Second)s, %(Third)s, %(Fourth)s, %(Fifth)s,
+#                 %(imgName)s, %(imgPath)s, %(chinaElementName)s, %(caption)s,
+#                 %(state)s, %(imageListID)s, %(created_at)s, %(updated_at)s
+#             )
+#             """
+#             cursor.execute(sql, insert_data)
+        
+#         return len(data)
+    
+#     except Exception as e:
+#         logging.error(f"处理文件时出错: {file_path}")
+#         logging.error(traceback.format_exc())
+#         return 0
 def process_json_file(cursor, file_path, base_dir):
     """处理单个JSON文件并导入到数据库"""
     try:
@@ -64,6 +130,15 @@ def process_json_file(cursor, file_path, base_dir):
             if not md5_val:
                 continue
             
+            # 生成新的文件名，并重命名文件
+            new_file_name = f"{md5_val}{os.path.splitext(img_relative_path)[1]}"
+            new_file_path = os.path.join(os.path.dirname(img_full_path), new_file_name)
+            os.rename(img_full_path, new_file_path)
+            
+            # 更新JSON中的图片路径和名称
+            entry['Img_path'] = os.path.relpath(new_file_path, base_dir)
+            entry['Img_name'] = new_file_name
+            
             # 准备数据库插入数据
             current_time = datetime.now()
             insert_data = {
@@ -74,7 +149,7 @@ def process_json_file(cursor, file_path, base_dir):
                 'Fourth': levels[3],
                 'Fifth': levels[4],
                 'imgName': entry.get('Img_name'),
-                'imgPath': entry['Img_path'],  # 直接使用JSON中的Img_path字段
+                'imgPath': entry['Img_path'],  
                 'chinaElementName': entry.get('China_element_name', None),
                 'caption': entry.get('caption', None),
                 'state': 0,
@@ -103,6 +178,9 @@ def process_json_file(cursor, file_path, base_dir):
         logging.error(f"处理文件时出错: {file_path}")
         logging.error(traceback.format_exc())
         return 0
+
+
+
 def analyze_and_insert_titles(cursor):
     """分析image表中的标题层级关系并插入到image_title表"""
     try:
